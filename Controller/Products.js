@@ -78,7 +78,7 @@ export class productsController {
       if(error instanceof Validation){
         res.status(406).json(error.message)
       }
-      if(error instanceof ErrorInsertProducts){
+      if(error instanceof ErrorProducts){
         res.status(406).json(error.message)
       }
       if(error instanceof ErrorQueries){

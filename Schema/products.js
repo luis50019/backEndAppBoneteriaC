@@ -12,7 +12,7 @@ const SchemaProducts = z.object({
   productName: z.string().min(3, {
     message: "Especifica con mayor precisión el nombre del producto",
   }),
-  imageUrl: z.string().url(),
+  imageUrl: z.array(z.string()),
   purchasePrice: z
     .number({ invalid_type_error: "El precio de compra debe ser un número" })
     .positive({ message: "El precio de compra no es válido" }),

@@ -9,13 +9,13 @@ export class Queries {
       if(!material) return idDefault;
 
       const [idMaterial] = await connection.query(
-        `SELECT id FROM tiposMaterial
+        `SELECT id FROM typesMaterial
         WHERE LOWER(material) = ?`,
         [material]
       );
       if(!idMaterial.length){
         const [newMaterial] = await connection.query(
-          `INSERT INTO tiposMaterial (material)
+          `INSERT INTO typesMaterial (material)
           VALUES(?)`,
           [material]
         );
@@ -46,13 +46,13 @@ export class Queries {
       if(!size) return idDefault;
       
       const [idSize] = await connection.query(
-        `SELECT id FROM tallasPrenda 
-        WHERE LOWER(talla) = ?`,
+        `SELECT id FROM sizesClothing 
+        WHERE LOWER(size) = ?`,
         [size]
       );
       if(!idSize.length){
         const [id] = await connection.query(
-          `INSERT INTO tallasPrenda (talla) VALUES (?)`,
+          `INSERT INTO sizesClothing (size) VALUES (?)`,
           [size]
         );
         return id.insertId
@@ -66,14 +66,14 @@ export class Queries {
   static getTargetAge = async({targetAge, minimumAge,maximumAge})=>{
     try{
       const connection = await getConnection()
-      const [idTargetAge] =await connection.query(
-        `SELECT id FROM edadDestinada
-        WHERE LOWER(edad) = ? OR ( edad_minima = ? OR edad_maxima = ?)`,
-        [targetAge,minimumAge,maximumAge]
-      )
+      const [idTargetAge] = await connection.query(
+        `SELECT id FROM desiredAge
+        WHERE LOWER(desiredAge) = ? OR ( minimumAge = ? OR maximumAge = ?)`,
+        [targetAge, minimumAge, maximumAge]
+      );
       if(!idTargetAge.length){
         const [id] = await connection.query(
-          `INSERT INTO edadDestinada (edad,edad_minima,edad_maxima) VALUES(?,?,?)`,
+          `INSERT INTO desiredAge (desiredAge,minimumAge,maximumAge) VALUES(?,?,?)`,
           [targetAge, minimumAge, maximumAge]
         );
         return id.insertId
@@ -89,14 +89,14 @@ export class Queries {
       //first get id clothing
       const connection = await getConnection();
       const [idClothing] = await connection.query(
-        `SELECT id FROM tipoPrenda 
-        WHERE LOWER(prenda) = ?`,
+        `SELECT id FROM typeclothing 
+        WHERE LOWER(typeClothing) = ?`,
         [clothingType]
       );
       //if not exist idClothing so create new clothing type
       if (!idClothing.length) {
         const [newIdClothing] = await connection.query(
-          `INSERT INTO tipoPrenda (prenda)
+          `INSERT INTO typeclothing (typeClothing)
           VALUES(?)`,
           [clothingType]
         );
@@ -125,13 +125,13 @@ export class Queries {
       const connection = await getConnection();
       const lowerTypeProduct = typeProduct.toLowerCase();
       const [type] = await connection.query(
-        `SELECT id FROM tipoDeProductos
-        WHERE LOWER(tipo_producto) = ?`,
+        `SELECT id FROM typeProducts
+        WHERE LOWER(typeProduct) = ?`,
         [lowerTypeProduct]
       );
       if (!type.length) {
         const [newTypeProduct] = await connection.query(
-          `INSERT INTO tipoDeProductos(tipo_producto)
+          `INSERT INTO typeProducts(typeProduct)
         VALUES (?)`,
           [typeProduct]
         );
@@ -159,8 +159,8 @@ export class Queries {
     try {
       const connection = await getConnection();
       const [category] = await connection.query(
-        `SELECT id FROM categoriasProductos
-        WHERE LOWER(categoria) = ?`,
+        `SELECT id FROM categoriesProducts
+        WHERE LOWER(category) = ?`,
         [nameCategory]
       );
       return category[0].id;

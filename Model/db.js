@@ -10,6 +10,9 @@ export const getConnection = async()=>{
       password: "Luis2010",
       database: "INVENTARIO_BONETERIA",
     });
+    await connection.query(
+      "SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ; "
+    );
     return connection
   } catch (error) {
     throw new ErrorConnection("Error de conexion con la base de datos","Error connection")

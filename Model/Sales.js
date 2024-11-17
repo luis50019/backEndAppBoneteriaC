@@ -1,17 +1,55 @@
-import { ErrorSales } from "../Error/error.js";
+import { ErrorSales, ErrorTransaction, incorrectAmounts } from "../Error/error.js";
 import { getConnection } from "./db.js";
 import { Queries } from "./Querys.js";
 
 export class ModelSales{
+
+  static getTickets = async ()=>{
+    let connection;
+    try {
+      connection = await getConnection();
+
+      const [tickets] = await connection.query(
+        `SELECT * FROM Ticket`
+      );
+
+      return tickets
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   static newSale = async (typeSale, total, products) => {
     let connection;
     try {
       //primero crear un nuevo ticker y obtener el id
+      const messagesErrors = new Array();
       connection = await getConnection();
+
+      for(const product of products){
+        const {pieceQuantity,quantityDozens, productId} = product;
+        let quantitySold = pieceQuantity + quantityDozens * 12;
+
+        const [[infoProduct]] = await connection.query(
+          `SELECT availableUnits,productName FROM Products
+          WHERE BIN_TO_UUID(id_product) = ?`,
+          [productId]
+        ); 
+
+        if(infoProduct.availableUnits < quantitySold){
+          messagesErrors.push({error:"cantidad no valida",productName:infoProduct.productName});
+          continue;
+        }
+      }
+
+      if(messagesErrors.length > 0){
+        throw new incorrectAmounts("Error en las cantidadades",messagesErrors,"Error of Quantity Sold");
+      }
+
       await connection.beginTransaction();
       //insert new ticket
       const [newTicket] = await connection.query(
-        `INSERT INTO Ticket (tipo_venta,total)
+        `INSERT INTO Ticket (typeSale,total)
         VALUES(?,?)`,
         [typeSale, total]
       );
@@ -32,13 +70,14 @@ export class ModelSales{
           (unitPrice - purchasePrice) * pieceQuantity + // Ganancia por unidades sueltas
           (dozenPrice - purchasePrice * 12) * quantityDozens; // Ganancia por docenas
 
-        let amountSold = pieceQuantity + quantityDozens * 12;
+        let quantitySold = pieceQuantity + quantityDozens * 12;
+        //validation of available units 
 
         //create a new ticket
         const [detallesTicket] = await connection.query(
           `INSERT INTO 
-          detalles_ticket (
-            ticket_id,cantidad_pieza,cantidad_docena,producto_id,precio_pieza,precio_docena,descuento
+          ticketDetails (
+            ticket_id,pieceQuantity,quantityDozens,product_id,unitPrice,dozenPrice,discount
           )
           VALUES(?,?,?,UUID_TO_BIN(?),?,?,?)`,
           [
@@ -54,30 +93,30 @@ export class ModelSales{
 
         //insert information about ticket
         await connection.query(
-          `INSERT INTO SubtotalDetallesTicket(detalle_id,sub_total)
+          `INSERT INTO SubtotalDetailsTicket(detail_id,subTotal)
           VALUES(?,?)`,
           [detallesTicket.insertId, total]
         );
         //update from products available
         await connection.query(
-          `UPDATE Productos 
-          SET unidades_disponibles = unidades_disponibles - ?,
-          unidades_vendidas = unidades_vendidas + ?
-          WHERE  id_producto = UUID_TO_BIN(?)`,
-          [amountSold, amountSold, productId]
+          `UPDATE Products 
+          SET availableUnits = availableUnits - ?,
+          soldUnits = soldUnits + ?
+          WHERE  BIN_TO_UUID(id_product) = ?`,
+          [quantitySold, quantitySold, productId]
         );
         //registrar moviminetos del inventario
         await connection.query(
-          `INSERT MovimientosInventario (producto_id,tipo_movimiento,cantidad)
+          `INSERT MovementsInventory (product_id,movementType,quantity)
           VALUES(UUID_TO_BIN(?),?,?);`,
-          [productId, "salida", amountSold]
+          [productId, "salida", quantitySold]
         );
 
         //falta cambiar el registro de los datos del inventario
         //modificar estadisticas de ventas
         const [statistics] = await connection.query(
-          `SELECT BIN_TO_UUID(id_producto) FROM EstadisticasVentas 
-          WHERE BIN_TO_UUID(id_producto) = ? AND ultima_venta = CURRENT_TIMESTAMP `,
+          `SELECT BIN_TO_UUID(id_product) FROM StatisticsSales 
+          WHERE BIN_TO_UUID(id_product) = ? AND lastSale = CURRENT_TIMESTAMP `,
           [productId]
         );
         let idStatisticSales = 0;
@@ -87,78 +126,92 @@ export class ModelSales{
           //actualzamos los valores que ya contiene
           idStatisticSales = statistics[0].id;
           await connection.query(
-            `UPDATE EstadisticasVentas
-            SET ultima_venta = CURRENT_TIMESTAMP WHERE id_producto = ?`,
+            `UPDATE StatisticsSales
+            SET lastSale = CURRENT_TIMESTAMP WHERE id_producto = ?`,
             [productId]
           );
         } else {
           idStatisticSales = await Queries.getUuID();
           await connection.query(
-            `INSERT INTO EstadisticasVentas(id_estadistica_venta,id_producto,ultima_venta)
+            `INSERT INTO StatisticsSales(sales_statistics_id,id_product,lastSale)
             VALUES(UUID_TO_BIN(?),UUID_TO_BIN(?),CURRENT_TIMESTAMP)`,
             [idStatisticSales, productId]
           );
         }
 
         const [totalStadistic] = await connection.query(
-          `SELECT cantidad_Vendida FROM TotalesEstadisticasVentas
-          WHERE BIN_TO_UUID(id_estadistica) = ? `,
+          `SELECT quantitySold FROM TotalsStatisticsSales
+          WHERE BIN_TO_UUID(id_statistics) = ? `,
           [idStatisticSales]
         );
 
         //si existe debemos de actualizar el valor si no existe lo creamos
         if (!totalStadistic.length) {
           await connection.query(
-            `INSERT INTO TotalesEstadisticasVentas (id_estadistica,cantidad_Vendida,ingreso_total,ganancia_total)
+            `INSERT INTO TotalsStatisticsSales (id_statistics,quantitySold,incomeTotal,totalProfit)
             VALUES(UUID_TO_BIN(?),?,?,?)`,
-            [idStatisticSales, amountSold, total, totalProfit]
+            [idStatisticSales, quantitySold, total, totalProfit]
           );
         } else {
           await connection.query(
-            `UPDATE TotalesEstadisticasVentas 
-            SET cantidad_Vendida = cantidad_Vendida + ?,
-            ingreso_total = ingreso_total + ?,
-            ganancia_total = ganancia_total + ?`,
-            [amountSold, total, totalProfit]
+            `UPDATE TotalsStatisticsSales 
+            SET quantitySold = quantitySold + ?,
+            incomeTotal = incomeTotal + ?,
+            totalProfit = totalProfit + ?
+            WHERE BIN_TO_UUID(id_estadistica) = ?`,
+            [quantitySold, total, totalProfit, idStatisticSales]
           );
         }
 
-
         //rellenamos la tabla de EstadisticasDiarias
         const [dailyStatistics] = await connection.query(
-          `SELECT id_estadistica FROM EstadisticasDiarias
-          WHERE fecha = CURRENT_TIMESTAMP `
+          `SELECT id_statistics FROM DailyStatistics
+          WHERE dateStatistics = CURRENT_TIMESTAMP `
         );
         if(!dailyStatistics.length){
           await connection.query(
-            `INSERT INTO EstadisticasDiarias(fecha,ingreso_total,ganancia_total)
+            `INSERT INTO DailyStatistics(dateStatistics,totalIncome,totalProfit)
             VALUES(CURRENT_TIMESTAMP,?,?)
-            `,[total,totalProfit]
+            `,
+            [total, totalProfit]
           );
         }else{
           await connection.query(
-            `UPDATE EstadisticasDiarias 
-            SET ingreso_total = ingreso_total + ?,
-            ganancia_total = ganancia_total + ?`,
-            [total,totalProfit]
-          )
+            `UPDATE DailyStatistics 
+            SET totalIncome = totalIncome + ?,
+            totalProfit = totalProfit + ?
+            WHERE dateStatistics = CURRENT_TIMESTAMP`,
+            [total, totalProfit]
+          );
         }
 
 
         await connection.query(
-          `UPDATE ResumenInventario
-          SET fecha = CURRENT_TIMESTAMP, 
-          total_inventario = total_inventario - ?,
-          ganancia_total =  ganancia_total + ?
-          WHERE id_resumen = 1`,
-          [amountSold, totalProfit]
+          `UPDATE SummaryInventory
+          SET lastFecha = CURRENT_TIMESTAMP, 
+          totalInventory = totalInventory - ?,
+          totalProfit =  totalProfit + ?
+          WHERE summary_id = 1`,
+          [quantitySold, totalProfit]
         );
       }
-      await connection.commit();
-      return idTicekt;
+      await connection.commit(1);
+      await connection.end();
+      return {id:idTicekt,message:messagesErrors};
+
     } catch (error) {
+      console.log(error);
       await connection.rollback();
-      throw new ErrorSales("hubo un error durante transaccion de la venta", "Error Transaction");
+      await connection.end();
+      if(error instanceof incorrectAmounts){
+        throw new incorrectAmounts(
+          error.message,
+          error.incorrects,
+          error.name
+        );
+      }
+      throw new ErrorTransaction("Error durante la transaccion","Erro de venta");
+
     }
   };  
 }

@@ -7,58 +7,64 @@ import {
 } from "../Error/error.js";
 
 const fieldValidates = [
-  "precio_pieza",
-  "precio_docena",
-  "descuento",
-  "precio_compra",
-  "unidades_disponibles",
+  "unitPrice",
+  "dozenPrice",
+  "discount",
+  "purchasePrice",
+  "availableUnits",
 ];
+
+const functiosGetProduct = {
+  "otros": async (productId) => {
+    try {
+      const connection = await getConnection();
+      const [[extraInfo]] = await connection.query(
+        `SELECT typesMaterial.material,descriptionProduct.descriptionProduct
+          FROM OtherProducts 
+          INNER JOIN typesMaterial ON typesMaterial.id = OtherProducts.material
+          INNER JOIN descriptionProduct ON descriptionProduct.id = OtherProducts.descriptionProduct
+          WHERE BIN_TO_UUID(OtherProducts.id_product)= ?`,
+          [productId]
+      ); 
+
+      return extraInfo;
+    } catch (error) {
+      throw new Error("Error al obtener la informacion extra");
+    }
+  },
+  "ropa": async (productId)=>{
+    try {
+      const connection = await getConnection();
+      const [[extraInfo]] = await connection.query(
+        `SELECT sizesClothing.size,desiredAge.desiredAge,desiredAge.minimumAge,
+        desiredAge.maximumAge,
+        typeClothing.typeclothing, garments.intendedGender FROM garments
+        INNER JOIN sizesClothing ON sizesClothing.id = garments.size
+        INNER JOIN desiredAge ON desiredAge.id = garments.desired_age
+        INNER JOIN typeClothing ON typeclothing.id = garments.type_clothing
+        WHERE BIN_TO_UUID(garments.id_clothing) = ?`,
+        [productId]
+      );
+
+      return extraInfo;
+    } catch (error) {
+      console.log(error);
+      throw new Error("Error al obtener la informacion extra");
+    }
+  }
+}
 
 export class modelProducts {
   static getAll = async () => {
-    //por el momento lo ocuparemos para poder obtener la info
     let connection;
     try {
       connection = await getConnection();
       const [producto] = await connection.query(
-        `SELECT BIN_TO_UUID(id_producto),nombre_producto,decrypt_data(precio_pieza),decrypt_data(precio_docena),descuento,decrypt_data(precio_compra),unidades_disponibles
-        FROM Productos`
+        `SELECT BIN_TO_UUID(id_product),productName,decrypt_data(unitPrice),
+        decrypt_data(dozenPrice),discount,decrypt_data(purchasePrice),
+        availableUnits,soldUnits
+        FROM Products`
       );
-
-      // const [producto] = await connection.query(
-      //   `SELECT * FROM Productos`
-      // )
-      // const [producto] = await connection.query(`SELECT * FROM Ticket`);
-
-      // const [producto] = await connection.query(
-      //   `SELECT * FROM EstadisticasVentas`
-      // );
-
-      // const [producto] = await connection.query(
-      //   `SELECT * FROM TotalesEstadisticasVentas`
-      // );
-
-      // const [producto] = await connection.query(
-      //   `SELECT * FROM EstadisticasDiarias`
-      // );
-
-      // const [producto] = await connection.query(
-      //   `SELECT * FROM ResumenInventario`
-      // );
-
-      // const [producto] = await connection.query(
-      //   `SELECT * FROM CostoInventario`
-      // );
-
-      // const [producto] = await connection.query(
-      //   `SELECT * FROM MovimientosInventario`
-      // );
-
-      // const [producto] = await connection.query(
-      //   `SELECT * FROM detalles_ticket`
-      // );
-
-      // const [producto] = await connection.query(`SELECT * FROM Ticket`);
 
       return producto;
     } catch (error) {
@@ -70,33 +76,27 @@ export class modelProducts {
   static getProduct = async (id)=>{
     try {
       const connection = await getConnection();
-      //Tablas que ocupo
-      //Productos
-      //categoriasProducts
-      //tipoDeProductos
-      // ---------- para ropa
-      //prendaRopa
-      //edadDestinada
-      //tipoPrenda
-      // --------- para otros
-      //tiposMaterial
-      //Descripcion
-      //otrosProductos
-      //
-
-      const [product] = await connection.query(
-        `SELECT BIN_TO_UUID(id_producto),esSegundaMano,tipo_producto,
-        nombre_producto,url_img,nombre_producto,decrypt_data(precio_pieza) as precio_pieza,
-        decrypt_data(precio_docena) as precio_docena,descuento,decrypt_data(precio_compra) as precio_compra,
-        unidades_disponibles,unidades_vendidas
-        FROM Productos
-        INNER JOIN categoriasProductos ON  Productos.categoria = categoriasProductos.id
-        WHERE BIN_TO_UUID(Productos.id_producto) = ?`,
+      //obtenemos la informacion
+      const [[infoBasic]] = await connection.query(
+        `SELECT BIN_TO_UUID(id_product) AS id_product,isSecondHand,
+        productName,decrypt_data(unitPrice) as unitPrice,
+        decrypt_data(dozenPrice) as dozenPrice,discount,decrypt_data(purchasePrice) as purchasePrice,
+        soldUnits,availableUnits,categoriesProducts.category,typeProducts.typeProduct
+        FROM Products
+        INNER JOIN categoriesProducts ON  Products.category = categoriesProducts.id
+        INNER JOIN typeProducts ON Products.typeProduct = typeProducts.id
+        WHERE BIN_TO_UUID(Products.id_product) = ?`,
         [id]
       );
-      //
+      const [images] = await connection.query(
+        `SELECT url FROM Images 
+        WHERE BIN_TO_UUID(id_product) = ?`,[id]
+      )
+      
+      const extraInfo = await functiosGetProduct[infoBasic.category](id);
 
-      return product
+
+      return {infoBasic:{...infoBasic}, extra: {...extraInfo}, images:images};
     } catch (error) {
       console.log(error);
     }
@@ -115,16 +115,15 @@ export class modelProducts {
       await connection.beginTransaction();
       if (field === "unidades_disponibles") {
         await connection.query(
-          `UPDATE Productos
-          SET unidades_disponibles = unidades_disponibles + ? WHERE BIN_TO_UUID(id_producto) = ?`,
+          `UPDATE Products
+          SET availableUnits = availableUnits + ? WHERE BIN_TO_UUID(id_product) = ?`,
           [value, id]
         );
-        // encrypt_data(?);
-        // decrypt_data(precio_docena);
+
       } else {
         await connection.query(
-          `UPDATE Productos
-        SET ${field} = encrypt_data(?) WHERE BIN_TO_UUID(id_producto) = ?`,
+          `UPDATE Products
+        SET ${field} = encrypt_data(?) WHERE BIN_TO_UUID(id_product) = ?`,
           [value, id]
         );
       }
@@ -151,7 +150,7 @@ export class modelProducts {
       dozenPrice,
       discount,
       availableUnits,
-      unitsSold,
+      soldUnits,
       totalInventoryCost,
     } = product;
     let  connection;
@@ -168,28 +167,35 @@ export class modelProducts {
 
       // create new product
       await connection.query(
-        `INSERT INTO Productos (
-        id_producto,esSegundaMano,categoria,tipo_producto,nombre_producto,url_img,
-        precio_compra,precio_pieza,precio_docena,descuento,unidades_disponibles,unidades_vendidas
+        `INSERT INTO Products (
+        id_product,isSecondHand,category,typeProduct,productName,
+        purchasePrice,unitPrice,dozenPrice,discount,availableUnits,soldUnits
       )
-      VALUES (UUID_TO_BIN(?),?, ?, ?, ?,?, encrypt_data(?), encrypt_data(?), encrypt_data(?), ?, ?, ?)`,
+      VALUES (UUID_TO_BIN(?),?, ?, ?,?, encrypt_data(?), encrypt_data(?), encrypt_data(?), ?, ?, ?)`,
         [
           uuid,
           isSecondHand,
           idCategory,
           idTypeProduct,
           productName,
-          imageUrl,
           purchasePrice,
           unitPrice,
           dozenPrice,
           discount,
           availableUnits,
-          unitsSold,
+          soldUnits,
         ]
       );
+
+      imageUrl.map(url =>{
+        connection.query(
+          `INSERT INTO Images (id_product,url)
+          VALUES(UUID_TO_BIN(?),?)`,[uuid,url]
+        )
+      })
+
       await connection.query(
-        `INSERT INTO CostoInventario (id_producto,costo_total_inventario)
+        `INSERT INTO inventoryCost (id_product,totalInventoryCost)
         VALUES (UUID_TO_BIN(?),?) `,
         [uuid, totalInventoryCost]
       );
@@ -212,24 +218,24 @@ export class modelProducts {
         });
         const idSize = await Queries.getSize(size);
         await connection.query(
-          `INSERT INTO prendasRopa (id_prenda,genero_destinado,tipo_prenda,edad_destinada,talla)
+          `INSERT INTO garments (id_clothing,intendedGender,type_clothing,desired_age,size)
         VALUES(UUID_TO_BIN(?),?,?,?,?)`,
           [uuid, targetGender, idClothingType, idTargetAge, idSize]
         );
       }
       if (idCategory == 2) {
-        const { material, description } = product;
+        const { material, descriptionProduct } = product;
 
         //insert of description of product
 
         const [idDescription] = await connection.query(
-          `INSERT INTO Descripcion(descripcion)
+          `INSERT INTO descriptionProduct(descriptionProduct)
           VALUES(?)`,
-          [description]
+          [descriptionProduct]
         );
         const idMaterial = await Queries.getMaterial(material);
         const [materialInsert] = await connection.query(
-          `INSERT INTO OtrosProductos (id_producto,material,descripcion)
+          `INSERT INTO OtherProducts (id_product,material,descriptionProduct)
         VALUES (UUID_TO_BIN(?),?,?)`,
           [uuid, idMaterial, idDescription.insertId]
         );
@@ -237,11 +243,11 @@ export class modelProducts {
 
       // modificamos el resumen del inventario
       await connection.query(
-        `UPDATE ResumenInventario
-        SET fecha = CURRENT_TIMESTAMP, 
-        total_inventario = total_inventario + ?,
-        valor_total_inventario = valor_total_inventario + ?
-        WHERE id_resumen = 1`,
+        `UPDATE SummaryInventory
+        SET lastFecha = CURRENT_TIMESTAMP, 
+        totalInventory = totalInventory + ?,
+        TotalInventoryValue = TotalInventoryValue + ?
+        WHERE summary_id = 1`,
         [availableUnits, totalInventoryCost]
       );
       await connection.commit();
@@ -249,6 +255,7 @@ export class modelProducts {
       return { succes: true, message: "succesful" };
     } catch (error) {
       await connection.rollback();
+      console.log(error);
       if (error instanceof ErrorConnection) {
         throw new ErrorProducts(error.message, error.name);
       }

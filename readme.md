@@ -106,18 +106,18 @@ DELIMITER ;
 {
   "productType": "Ropa interior",
   "category": "otros",
-  "esSegundaMano":false,
-  "productName": "Playera Deportiva",
-  "imageUrl": "https://example.com/playera.jpg",
+  "isSecondHand":false,
+  "productName": "llaveros",
+  "imageUrl": ["https://example.com/llavero.jpg","https://example.com/llavero-2.jpg"],
   "purchasePrice": 150.5,
   "unitPrice": 200.0,
   "dozenPrice": 2200.0,
   "discount": 10.0,
   "availableUnits": 100,
-  "unitsSold": 25,
+  "soldUnits": 25,
   "totalInventoryCost": 15050.0,
   "material": "plastico",
-  "description": "Es un producto"
+  "descriptionProduct": "Es un producto"
 }
 2800
 
@@ -128,7 +128,7 @@ DELIMITER ;
   "isSecondHand": false,
   "category": "ropa",
   "productName": "Falda corta de verano",
-  "imageUrl": "https://example.com/falda-larga.jpg",
+  "imageUrl": ["https://example.com/falda-larga.jpg","https://example.com/falda-larga-2.jpg"],
   "purchasePrice": 100.0,
   "unitPrice": 300.0,
   "dozenPrice": 3000.0,
@@ -149,7 +149,7 @@ DELIMITER ;
   "isSecondHand": false,
   "category": "ropa",
   "productName": "Sudadera con capucha",
-  "imageUrl": "https://example.com/sudadera-capucha.jpg",
+  "imageUrl": ["https://example.com/sudadera-capucha.jpg","https://example.com/sudadera-capucha-2.jpg"],
   "purchasePrice": 200.0,
   "unitPrice": 400.0,
   "dozenPrice": 4800.0,
@@ -170,7 +170,7 @@ DELIMITER ;
   "isSecondHand": false,
   "category": "ropa",
   "productName": "Falda larga de verano",
-  "imageUrl": "https://example.com/falda-larga.jpg",
+  "imageUrl": ["https://example.com/falda-larga.jpg","https://example.com/falda-larga-2.jpg"],
   "purchasePrice": 100.0,
   "unitPrice": 250.0,
   "dozenPrice": 2700.0,

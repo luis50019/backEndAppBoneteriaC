@@ -26,6 +26,16 @@ export class ErrorQueries extends Error{
     this.name = nameError
   }
 }
+
+export class incorrectAmounts extends Error {
+  incorrects = Array();
+  constructor(message,arrayIncorrectAmounts, nameError) {
+    super(message);
+    this.name = nameError;
+    this.incorrects = arrayIncorrectAmounts; 
+  }
+}
+
 export class ErrorSales extends Error {
   constructor(message, nameError) {
     super(message);
@@ -42,3 +52,10 @@ export class ErrorConnection extends Error{
 }
 
 //error of sales
+
+export class ErrorTransaction extends Error{
+  constructor(message,nameError){
+    super(message);
+    this.name = nameError;
+  }
+}

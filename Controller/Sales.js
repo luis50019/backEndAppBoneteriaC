@@ -1,4 +1,4 @@
-import { Validation} from '../Error/error.js';
+import { ErrorSales, ErrorTransaction, incorrectAmounts, Validation} from '../Error/error.js';
 import { ModelSales } from '../Model/Sales.js';
 import {validateSaleHeader, validateProductsSale} from '../Schema/sales.js'
 
@@ -22,12 +22,27 @@ export class ControllerSales {
       const newSale = await ModelSales.newSale(typeSale, total, products);
       res.status(202).json({ success: true, ticket: newSale });
     } catch (error) {
+      console.log(error);
       if( error instanceof Validation){
         res.status(406).json(error.message);
       }
       if(error instanceof ErrorTransaction){
         res.status(409).send(error.message);
       }
+      if(error instanceof incorrectAmounts){
+        res.status(406).json(error.incorrects);
+      }
     }
   };
+
+  static getTickets = async (req,res)=>{
+    try {
+      const tickets = await ModelSales.getTickets();
+      res.status(200).json(tickets);
+    } catch (error) {
+      console.log(error);
+      res.status(404).json({message:"error"});
+    }
+  }
+
 }
