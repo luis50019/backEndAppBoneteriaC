@@ -1,5 +1,5 @@
 import { ErrorProducts, ErrorQueries, Validation } from "../Error/error.js";
-import { modelProducts } from "../Model/Products.js";
+import { ModelProducts } from "../Model/mongoDB/Products.js";
 import {
   validateItemOfClothing,
   validateNewInfo,
@@ -11,7 +11,7 @@ export class productsController {
   
   static getAllProducts = async (req, res) => {
     try {
-      const products =await modelProducts.getAll()
+      const products =await ModelProducts.getAll()
       res.status(201).json(products);
     } catch (e) {
       console.log(e);
@@ -22,7 +22,7 @@ export class productsController {
     try {
       const {id} = req.params;
       console.log(id);
-      const infoProduct = await modelProducts.getProduct(id);
+      const infoProduct = await ModelProducts.getProduct(id);
       res.status(200).json(infoProduct)
     } catch (error) {
       console.log(error);
@@ -38,7 +38,7 @@ export class productsController {
         throw new Validation("Error de validacion de la nueva informacion",resultValidate.error.errors);
       }
 
-      const resultEdit = await modelProducts.editProduct(req.body);
+      const resultEdit = await ModelProducts.editProduct(req.body);
       res.status(202).json(resultEdit);
       
     } catch (error) {
@@ -70,7 +70,8 @@ export class productsController {
         throw new Validation("Error of validation item cloathing", result.error.errors);
       }
 
-      const idCategory = await modelProducts.createProduct(req.body)
+      const idCategory = await ModelProducts.createProduct(req.body)
+      console.log(idCategory);
       res.status(201).json(idCategory)
 
     } catch (error) {

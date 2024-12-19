@@ -201,7 +201,7 @@ export class modelProducts {
       );
 
       if (idCategory == 1) {
-        // await this.insertClothing(uuid, product);
+        await this.insertClothing(uuid, product);
         const {
           clothingType,
           targetAge,

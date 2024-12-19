@@ -1,8 +1,13 @@
+mongodb+srv://teddiazdiaz019:*****@inventarioboneteria.jiy1g.mongodb.net/inventario
+
 []crear server
 [] crear router de productos
 [] crear schema de productos
 [] crear 
 
+// peticiones
+-> estadisticas
+-> total del inventario y ganancia total
 
 //modificaciones mas avanzadas
 [] Crear nuestros propios errores

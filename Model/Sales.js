@@ -35,11 +35,11 @@ export class ModelSales{
           WHERE BIN_TO_UUID(id_product) = ?`,
           [productId]
         ); 
-
+        console.log(infoProduct);
         if(infoProduct.availableUnits < quantitySold){
           messagesErrors.push({error:"cantidad no valida",productName:infoProduct.productName});
           continue;
-        }
+        }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
       }
 
       if(messagesErrors.length > 0){
@@ -164,29 +164,49 @@ export class ModelSales{
         }
 
         //rellenamos la tabla de EstadisticasDiarias
-        const [dailyStatistics] = await connection.query(
-          `SELECT id_statistics FROM DailyStatistics
-          WHERE dateStatistics = CURRENT_TIMESTAMP `
-        );
-        if(!dailyStatistics.length){
-          await connection.query(
-            `INSERT INTO DailyStatistics(dateStatistics,totalIncome,totalProfit)
-            VALUES(CURRENT_TIMESTAMP,?,?)
+        // const [dailyStatistics] = await connection.query(
+        //   `SELECT id_statistics FROM DailyStatistics
+        //   WHERE dateStatistics = CURRENT_TIMESTAMP `
+        // );
+        // if(!dailyStatistics.length){
+          //   await connection.query(
+            //     `INSERT INTO DailyStatistics(dateStatistics,totalIncome,totalProfit)
+            //     VALUES(CURRENT_TIMESTAMP,?,?)
+        //     `,
+        //     [total, totalProfit]
+        //   );
+        // }else{
+          //   await connection.query(
+            //     `UPDATE DailyStatistics 
+            //     SET totalIncome = totalIncome + ?,
+            //     totalProfit = totalProfit + ?
+            //     WHERE dateStatistics = CURRENT_TIMESTAMP`,
+            //     [total, totalProfit]
+            //   );
+            // }
+            
+            
+            const [dailyStatistics] = await connection.query(
+              `SELECT id_statistics FROM DailyStatistics
+              WHERE dateStatistics = ? `,[product.date]
+            );
+            if (!dailyStatistics.length) {
+              await connection.query(
+                `INSERT INTO DailyStatistics(dateStatistics,totalIncome,totalProfit)
+            VALUES(?,?,?)
             `,
-            [total, totalProfit]
-          );
-        }else{
-          await connection.query(
-            `UPDATE DailyStatistics 
+                [product.date,total, totalProfit]
+              );
+            } else {
+              await connection.query(
+                `UPDATE DailyStatistics 
             SET totalIncome = totalIncome + ?,
             totalProfit = totalProfit + ?
-            WHERE dateStatistics = CURRENT_TIMESTAMP`,
-            [total, totalProfit]
-          );
-        }
-
-
-        await connection.query(
+            WHERE dateStatistics = ?`,
+                [total, totalProfit,product.date]
+              );
+            }
+            await connection.query(
           `UPDATE SummaryInventory
           SET lastFecha = CURRENT_TIMESTAMP, 
           totalInventory = totalInventory - ?,
