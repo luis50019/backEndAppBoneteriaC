@@ -73,13 +73,13 @@ export class ModelProducts{
       const newProduct = await product.save({session});
       await Product.findByIdAndUpdate(product._id, 
         { $set: { 'inventoryCost': (dataProduct.purchasePrice * dataProduct.availableUnits) } },
-        { new: true, upsert: true }
+        { new: true, upsert: true,session }
       );
-      session.commitTransaction();
+      await session.commitTransaction();
       return newProduct;
 
     }catch(e){
-      session.abortTransaction()
+      await session.abortTransaction()
       console.log("Error: ",e)
     }finally{
       session.endSession();

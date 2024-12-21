@@ -75,7 +75,7 @@ export class productsController {
       res.status(201).json(idCategory)
 
     } catch (error) {
-      console.log(error);
+      console.log("Ocurrio un problemon",error);
       if(error instanceof Validation){
         res.status(406).json(error.message)
       }

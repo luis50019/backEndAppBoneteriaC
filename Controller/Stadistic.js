@@ -1,4 +1,4 @@
-import {ModelStadistic} from '../Model/Stadistic.js';
+import ModelStadistic from '../Model/mongoDB/Stadistic.js';
 
 export class ControllerStadistic{
   static getTotalSales = async (req,res)=>{

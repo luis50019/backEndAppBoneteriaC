@@ -3,8 +3,9 @@ import { ErrorSales } from '../../Error/error.js';
 
 import Product from '../../Schema/mongoDB/product.schema.js';
 import MovementInventory from '../../Schema/mongoDB/movementInventory.schema.js';
-import StatisticsSales from '../../Schema/mongoDB/statisticsSales.schema.js';
-import ticketSchema from '../../Schema/mongoDB/ticket.schema.js';
+import StatisticsSales from '../../Schema/mongoDB/statisticsSales.js';
+import Ticket from '../../Schema/mongoDB/ticket.schema.js';
+import statisticsSales from '../../Schema/mongoDB/statisticsSales.js';
 
 
 export class ModelSales{
@@ -17,7 +18,7 @@ export class ModelSales{
       // primero generar el ticket
       const {typeSale,total,products} = saleData;
       
-      let newTicket = await ticketSchema.find({saleDate:products[0].date});
+      let newTicket = await Ticket.findOne({ saleDate: products[0].date }).session(session);
 
       if(!newTicket){
         newTicket = new Ticket({
@@ -69,21 +70,31 @@ export class ModelSales{
         stadistic.quantitySold += soldAmount;
         stadistic.incomeTotal += subtotal;
         stadistic.totalProfit += subtotal -(purchasePrice * soldAmount);
-
+        await stadistic.save({session});
         
       }
       
-      await stadistic.save({session});
 
       await newTicket.save({session});
       await session.commitTransaction();
 
     } catch (error) { 
-      session.abortTransaction()
+      session.abortTransaction();
+      console.log(error);
     }finally{
       session.endSession()
     }
   }
+  
+  static getTickets = async()=>{
+    try {
+      const tickets = await Ticket.find();
+      return tickets;
+    } catch (error) {
+      throw new ErrorSales("Error al obtener los tickets","Error en ventas")
+    }
+  }
+
 }
 
 // {

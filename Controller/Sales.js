@@ -1,5 +1,5 @@
 import { ErrorSales, ErrorTransaction, incorrectAmounts, Validation} from '../Error/error.js';
-import { ModelSales } from '../Model/Sales.js';
+import { ModelSales } from '../Model/mongoDB/Sales.js';
 import {validateSaleHeader, validateProductsSale} from '../Schema/sales.js'
 
 export class ControllerSales {
@@ -19,7 +19,7 @@ export class ControllerSales {
       }
 
       //validar los datos del json()
-      const newSale = await ModelSales.newSale(typeSale, total, products);
+      const newSale = await ModelSales.newSale(req.body);
       res.status(202).json({ success: true, ticket: newSale });
     } catch (error) {
       console.log(error);
