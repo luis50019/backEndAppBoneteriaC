@@ -13,7 +13,7 @@ app.use(json());
 app.use("/products", routerProducts);
 app.use("/sales", routerSales);
 app.use("/stadisctic",routerStadisctic);
-
+app.options('*', corsMiddleware());
 app.listen(PORT, () => {
   console.log("the server is live");
 });
