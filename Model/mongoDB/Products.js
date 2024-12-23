@@ -27,10 +27,16 @@ export class ModelProducts{
       }
 
       
-      let typeClothing = await TypeClothing.findOne({typeClothing:dataProduct.clothingType});
-      if (!typeClothing) {
-        typeClothing = await new TypeClothing({ typeclothing: dataProduct.clothingType }).save({session});
-      }
+      let typeClothing = await TypeClothing.findOneAndUpdate(
+        { typeclothing: dataProduct.typeClothing },
+        { typeclothing: dataProduct.typeClothing },
+        {
+          new: true,
+          upsert: true,
+          session,
+          runValidators: true,
+        }
+      )
       let desiredAge = await DesiredAge.findOne({
         desiredAge:dataProduct.targetAge,
         minimuAge:dataProduct.minimumAge,
