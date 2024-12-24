@@ -70,9 +70,8 @@ export class productsController {
         throw new Validation("Error of validation item cloathing", result.error.errors);
       }
 
-      const idCategory = await ModelProducts.createProduct(req.body)
-      console.log(idCategory);
-      res.status(201).json(idCategory)
+      const product = await ModelProducts.createProduct(req.body)
+      res.status(201).json(product)
 
     } catch (error) {
       console.log("Ocurrio un problemon",error);

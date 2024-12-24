@@ -11,4 +11,16 @@ export class ControllerStadistic{
       console.log(error);
     }
   }
+
+  static getInfoInventary = async (req,res)=>{
+    try {
+      //get info of inventory
+      const infoInventary = await ModelStadistic.getInfoInventary();
+
+      res.status(200).json(infoInventary);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
 }

@@ -10,11 +10,11 @@ const schemaArrayProducts = z.array(
     "pieceQuantity": z.number().min(0).optional(),
     "quantityDozens": z.number().min(0).optional(),
     "productId": z.string(),
-    "total": z.number().positive(),
-    "unitPrice": z.number().positive().min(1),
-    "dozenPrice": z.number().positive().min(1),
-    "discount": z.number().positive(),
-    "purchasePrice": z.number().positive(),
+    //"total": z.number().positive(),
+    //"unitPrice": z.number().positive().min(1),
+    //"dozenPrice": z.number().positive().min(1),
+    //"discount": z.number().positive(),
+    //"purchasePrice": z.number().positive(),
   })
 )
 

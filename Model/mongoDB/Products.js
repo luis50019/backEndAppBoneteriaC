@@ -6,7 +6,8 @@ import TypeProduct from '../../Schema/mongoDB/typeProduct.schema.js';
 import TypeClothing from '../../Schema/mongoDB/typeClothing.schema.js';
 import DesiredAge from '../../Schema/mongoDB/desiredAge.schema.js';
 import SizeClothing from '../../Schema/mongoDB/sizeClothing.schema.js';
-import { encryptData } from './utils/encrypData.js';
+import SummaryInventory from '../../Schema/mongoDB/summaryInventory.schema.js';
+import { encryptData,decryptData } from './utils/encrypData.js';
 
 export class ModelProducts{
   static createProduct = async (dataProduct)=>{
@@ -25,18 +26,13 @@ export class ModelProducts{
       if (!typeProduct) {
         typeProduct = await new TypeProduct({ typeProduct: dataProduct.productType }).save({session});
       }
-
       
-      let typeClothing = await TypeClothing.findOneAndUpdate(
-        { typeclothing: dataProduct.typeClothing },
-        { typeclothing: dataProduct.typeClothing },
-        {
-          new: true,
-          upsert: true,
-          session,
-          runValidators: true,
-        }
-      )
+      let typeClothing = await TypeClothing.findOne({typeclothing:dataProduct.clothingType})
+
+      if(!typeClothing){
+        typeClothing = await new TypeClothing({typeclothing:dataProduct.clothingType}).save({session});
+      }
+      
       let desiredAge = await DesiredAge.findOne({
         desiredAge:dataProduct.targetAge,
         minimuAge:dataProduct.minimumAge,
@@ -62,9 +58,9 @@ export class ModelProducts{
         category: category._id,
         typeProduct: typeProduct._id,
         productName: dataProduct.productName,
-        purchasePrice: encryptData(dataProduct.purchasePrice),
-        unitPrice: encryptData(dataProduct.unitPrice),
-        dozenPrice: encryptData(dataProduct.dozenPrice),
+        purchasePrice:dataProduct.purchasePrice,
+        unitPrice: dataProduct.unitPrice,
+        dozenPrice:dataProduct.dozenPrice,
         discount: dataProduct.discount,
         availableUnits: dataProduct.availableUnits,
         soldUnits: dataProduct.soldUnits,
@@ -81,6 +77,24 @@ export class ModelProducts{
         { $set: { 'inventoryCost': (dataProduct.purchasePrice * dataProduct.availableUnits) } },
         { new: true, upsert: true,session }
       );
+      // register the new value of the inventary
+      const inventary = await SummaryInventory.findOne();
+
+      let newInventary = null
+      if(!inventary){
+        newInventary = new SummaryInventory({
+          totalInventory: parseInt(dataProduct.availableUnits),
+          totalInventoryValue: parseFloat(dataProduct.purchasePrice * dataProduct.availableUnits),
+          totalProfit: 0,
+          lastFecha: Date.now()
+        });
+        await newInventary.save({session});
+      }else{
+        inventary.totalInventory += dataProduct.availableUnits;
+        inventary.totalInventoryValue += dataProduct.purchasePrice * dataProduct.availableUnits;
+        inventary.lastFecha = Date.now();
+        await inventary.save({session});
+      }
       await session.commitTransaction();
       return newProduct;
 
@@ -94,8 +108,16 @@ export class ModelProducts{
 
   static getAll = async()=>{
     try{
-      const data = await Product.find();
-      return data;  
+      const products = await Product.find()
+      .populate('category','category -_id') 
+      .populate('typeProduct','typeProduct -_id') 
+      .populate('garment.typeClothing','typeclothing -_id') 
+      .populate('garment.desiredAge','desiredAge minimumAge maximumAge -_id') 
+      .populate('garment.size','size -_id')
+      .populate('otherProduct.material','material -_id')
+      .exec();
+
+      return products
     }catch(e){
       console.log(e)
     }
@@ -103,4 +125,3 @@ export class ModelProducts{
 
 
 }
-

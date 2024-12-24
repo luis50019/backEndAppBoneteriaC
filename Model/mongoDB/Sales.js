@@ -1,140 +1,119 @@
-import mongoose from 'mongoose';
-import { ErrorSales } from '../../Error/error.js';
+import mongoose from "mongoose";
+import { ErrorSales } from "../../Error/error.js";
 
-import Product from '../../Schema/mongoDB/product.schema.js';
-import MovementInventory from '../../Schema/mongoDB/movementInventory.schema.js';
-import StatisticsSales from '../../Schema/mongoDB/statisticsSales.js';
-import Ticket from '../../Schema/mongoDB/ticket.schema.js';
-import statisticsSales from '../../Schema/mongoDB/statisticsSales.js';
+import Product from "../../Schema/mongoDB/product.schema.js";
+import MovementInventory from "../../Schema/mongoDB/movementInventory.schema.js";
+import StatisticsSales from "../../Schema/mongoDB/stadisticsSales.js";
+import Ticket from "../../Schema/mongoDB/ticket.schema.js";
+import summaryInventorySchema from "../../Schema/mongoDB/summaryInventory.schema.js";
 
-
-export class ModelSales{
-  static newSale =async(saleData)=>{
+export class ModelSales {
+  static newSale = async (saleData) => {
     let session;
     try {
       session = await mongoose.startSession();
-      session.startTransaction()
+      session.startTransaction();
 
       // primero generar el ticket
-      const {typeSale,total,products} = saleData;
-      
-      let newTicket = await Ticket.findOne({ saleDate: products[0].date }).session(session);
+      const { typeSale, date, total, products } = saleData;
 
-      if(!newTicket){
+      let newTicket = await Ticket.findOne({
+        saleDate: products[0].date,
+      }).session(session);
+
+      if (!newTicket) {
         newTicket = new Ticket({
           typeSale,
           total,
-          details:[],
-          saleData:products[0].date
-        })
+          details: [],
+          saleData: date,
+        });
       }
+      const inventary = await summaryInventorySchema.findOne();
+      if (!inventary) {
+        throw new ErrorSales("Inventario no encontrado", "Error en ventas");
+      }
+      inventary.totalSales += total;
+      for (const product of products) {
+        const productFind = await Product.findById(product.productId).session(session)
 
-      for(const product of products){
+        if (!productFind) {
+          throw new ErrorSales("No se encontro el producto", "Error en ventas");
+        }
+        const {pieceQuantity,quantityDozens} = product;
         const {
-          pieceQuantity,
-          quantityDozens,
-          productId,
-          total: subtotal,
           unitPrice,
           dozenPrice,
           discount,
           purchasePrice,
-          date
-        } = product;
+        } = productFind;
 
-        const saleProduct = await Product.findById(productId).session(session);
-        if(!saleProduct){
-          throw new ErrorSales("producto no encontrado","Error en ventas")
-        }
-        const soldAmount =pieceQuantity + (quantityDozens*12);
-        saleProduct.availableUnits -= soldAmount;
-        saleProduct.soldUnits += soldAmount;
-        
-        await saleProduct.save({session});
+        const soldAmount = pieceQuantity + quantityDozens * 12;
+        productFind.availableUnits -= soldAmount;
+        productFind.soldUnits += soldAmount;
+
+        await productFind.save({ session });
 
         const motion = new MovementInventory({
-          product: saleProduct._id,
-          movementType: 'salida',
-          quantity:soldAmount,
-          date:date
-        })
+          product: productFind._id,
+          movementType: "salida",
+          quantity: soldAmount,
+          date: date,
+        });
 
-        await motion.save({session});
+        await motion.save({ session });
 
-        let stadistic = await StatisticsSales.findOne({lastSale: date}).session(session);
+        let stadistic = await StatisticsSales.findOne({
+          lastSale: date,
+        }).session(session);
 
-        if(!stadistic){
-          stadistic = new StatisticsSales({lastSale:date})
+        if (!stadistic) {
+          stadistic = new StatisticsSales({ lastSale: date });
         }
 
+        const incomeTotal = (unitPrice * pieceQuantity + dozenPrice * quantityDozens) * (1 - discount / 100);
+        const discountedUnitPrice = unitPrice * (1 - discount / 100);
+        const discountedDozenPrice = dozenPrice * (1 - discount / 100);
+        const totalProfit = (discountedUnitPrice - purchasePrice) * pieceQuantity + (discountedDozenPrice - purchasePrice * 12) * quantityDozens;
+    
         stadistic.quantitySold += soldAmount;
-        stadistic.incomeTotal += subtotal;
-        stadistic.totalProfit += subtotal -(purchasePrice * soldAmount);
-        await stadistic.save({session});
-        
+        stadistic.incomeTotal += incomeTotal
+        stadistic.totalProfit +=totalProfit
+        await stadistic.save({ session });
+
+        inventary.totalInventory -= soldAmount;
+        inventary.totalProfit +=totalProfit
+        await inventary.save({ session });
+
+        const detailProductSale = {
+          product: productFind._id,
+          pieceQuantity:pieceQuantity,
+          quantityDozens,
+          unitPrice,
+          dozenPrice,
+          discount,
+          subTotal: incomeTotal,
+          totalProfit,
+          totalSoldAmount:soldAmount
+        }
+        newTicket.details.push(detailProductSale);
       }
-      
-
-      await newTicket.save({session});
+      await newTicket.save({ session });
       await session.commitTransaction();
-
-    } catch (error) { 
+    } catch (error) {
       session.abortTransaction();
       console.log(error);
-    }finally{
-      session.endSession()
+    } finally {
+      session.endSession();
     }
-  }
-  
-  static getTickets = async()=>{
+  };
+
+  static getTickets = async () => {
     try {
       const tickets = await Ticket.find();
       return tickets;
     } catch (error) {
-      throw new ErrorSales("Error al obtener los tickets","Error en ventas")
+      throw new ErrorSales("Error al obtener los tickets", "Error en ventas");
     }
-  }
-
+  };
 }
-
-// {
-//   "typeSale":"Oficial",
-//   "total":9700,
-//   "products":[
-//      {
-//        "pieceQuantity":2,
-//        "quantityDozens":0,
-//        "productId":"27bf6a89-86bd-11ef-aeaa-809133f30242",
-//        "total":800,
-//        "unitPrice":400,
-//        "dozenPrice":4800,
-//        "discount":15,
-//        "purchasePrice":200,
-//        "date": "2024-10-03"
-//      },
-//      {
-//        "pieceQuantity":2,
-//        "quantityDozens":2,
-//        "productId":"445bcb35-81e2-11ef-a677-809133f30242",
-//        "total":5900,
-//        "unitPrice":250,
-//        "dozenPrice":2700,
-//        "discount":5,
-//        "purchasePrice":100,
-//        "date": "2024-10-03"
-//      },
-//      {
-//        "pieceQuantity":10,
-//        "quantityDozens":0,
-//        "productId":"0cc44d94-86bd-11ef-aeaa-809133f30242",
-//        "total":3000,
-//        "unitPrice":300,
-//        "dozenPrice":3000,
-//        "discount":1,
-//        "purchasePrice":100,
-//        "date": "2024-10-03"
-//      }
-//     ]
-//  }
- 
-

@@ -11,7 +11,8 @@ const ticketSchema = new mongoose.Schema({
     unitPrice: { type: Number, default: 0 },
     dozenPrice: { type: Number, default: 0 },
     discount: { type: Number, default: 0 },
-    subTotal: { type: Number, required: true }
+    subTotal: { type: Number, required: true },
+    totalSoldAmount: {type:Number,required:true}
   }]
 }, { timestamps: true });
 

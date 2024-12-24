@@ -68,44 +68,26 @@ DELIMITER ;
 
 {
  "typeSale":"Oficial",
- "total":9700,
+ "total":11809,
+ "date":"2024-10-03",
  "products":[
     {
       "pieceQuantity":2,
       "quantityDozens":0,
-      "productId":"27bf6a89-86bd-11ef-aeaa-809133f30242",
-      "total":800,
-      "unitPrice":400,
-      "dozenPrice":4800,
-      "discount":15,
-      "purchasePrice":200,
-      "date": "2024-10-03"
+      "productId":"676a89ee77920b315ab17756"
     },
     {
       "pieceQuantity":2,
       "quantityDozens":2,
-      "productId":"445bcb35-81e2-11ef-a677-809133f30242",
-      "total":5900,
-      "unitPrice":250,
-      "dozenPrice":2700,
-      "discount":5,
-      "purchasePrice":100,
-      "date": "2024-10-03"
+      "productId":"676a89fb77920b315ab17762"
     },
     {
       "pieceQuantity":10,
       "quantityDozens":0,
-      "productId":"0cc44d94-86bd-11ef-aeaa-809133f30242",
-      "total":3000,
-      "unitPrice":300,
-      "dozenPrice":3000,
-      "discount":1,
-      "purchasePrice":100,
-      "date": "2024-10-03"
+      "productId":"676a8a0577920b315ab1776e"
     }
    ]
 }
-
 //productos
 
 {
