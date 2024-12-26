@@ -106,15 +106,16 @@ export class ModelProducts{
     }
   }
 
-  static getAll = async()=>{
+  static getAllProducts = async()=>{
     try{
-      const products = await Product.find()
-      .populate('category','category -_id') 
-      .populate('typeProduct','typeProduct -_id') 
-      .populate('garment.typeClothing','typeclothing -_id') 
-      .populate('garment.desiredAge','desiredAge minimumAge maximumAge -_id') 
-      .populate('garment.size','size -_id')
-      .populate('otherProduct.material','material -_id')
+      const products = await Product.find({},{
+        images:1,
+        productName:1,
+        soldUnits:1,
+        incomeGenerated:1,
+        profitsGenerated:1,
+        availableUnits:1
+      }).populate('garment.size','size -_id')
       .exec();
 
       return products
@@ -123,5 +124,66 @@ export class ModelProducts{
     }
   }
 
+  static getTopProducts = async()=>{
+    try{
+      const topProducts = await Product.find({},{
+        images:1,
+        productName:1,
+        soldUnits:1,
+        incomeGenerated:1,
+        profitsGenerated:1,
+        availableUnits:1
+      }).sort({soldUnits:-1}).limit(2).populate('garment.size','size -_id')
+      .exec();
+
+      return topProducts;
+    }catch(e){
+      console.log(e);
+    }
+  }
+
+  static getProductsAboutToEnd = async()=>{
+    try{
+      const products = await Product.find({availableUnits:{$lte:5}},{
+        images:1,
+        productName:1,
+        soldUnits:1,
+        incomeGenerated:1,
+        profitsGenerated:1,
+        availableUnits:1
+      }).populate('garment.size','size -_id')
+      .exec();
+
+      return products
+    }catch(e){
+      console.log(e)
+    }
+  }
+
+  static getProductById = async (id)=>{
+    try{
+      const productFind = await Product.findById(id).populate('category','category -_id') 
+          .populate('typeProduct','typeProduct -_id') 
+          .populate('garment.typeClothing','typeclothing -_id') 
+          .populate('garment.desiredAge','desiredAge minimumAge maximumAge -_id') 
+          .populate('garment.size','size -_id')
+          .populate('otherProduct.material','material -_id')
+          .exec();
+      return productFind;
+    }catch(e){
+      console.log(e)
+    }
+  }
+
 
 }
+
+
+//const products = await Product.find()
+//     .populate('category','category -_id') 
+//      .populate('typeProduct','typeProduct -_id') 
+//      .populate('garment.typeClothing','typeclothing -_id') 
+//      .populate('garment.desiredAge','desiredAge minimumAge maximumAge -_id') 
+//      
+//      .populate('otherProduct.material','material -_id')
+//      .exec();

@@ -48,9 +48,18 @@ export class ModelSales {
           purchasePrice,
         } = productFind;
 
+        // operations of the clothings
+        const incomeTotal = (unitPrice * pieceQuantity + dozenPrice * quantityDozens) * (1 - discount / 100);
+        const discountedUnitPrice = unitPrice * (1 - discount / 100);
+        const discountedDozenPrice = dozenPrice * (1 - discount / 100);
+        const totalProfit = (discountedUnitPrice - purchasePrice) * pieceQuantity + (discountedDozenPrice - purchasePrice * 12) * quantityDozens;
         const soldAmount = pieceQuantity + quantityDozens * 12;
+
+
         productFind.availableUnits -= soldAmount;
         productFind.soldUnits += soldAmount;
+        productFind.incomeGenerated += incomeTotal;
+        productFind.profitsGenerated += totalProfit;
 
         await productFind.save({ session });
 
@@ -71,11 +80,6 @@ export class ModelSales {
           stadistic = new StatisticsSales({ lastSale: date });
         }
 
-        const incomeTotal = (unitPrice * pieceQuantity + dozenPrice * quantityDozens) * (1 - discount / 100);
-        const discountedUnitPrice = unitPrice * (1 - discount / 100);
-        const discountedDozenPrice = dozenPrice * (1 - discount / 100);
-        const totalProfit = (discountedUnitPrice - purchasePrice) * pieceQuantity + (discountedDozenPrice - purchasePrice * 12) * quantityDozens;
-    
         stadistic.quantitySold += soldAmount;
         stadistic.incomeTotal += incomeTotal
         stadistic.totalProfit +=totalProfit

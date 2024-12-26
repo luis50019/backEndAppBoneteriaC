@@ -12,6 +12,8 @@ const productSchema = new mongoose.Schema({
   discount: { type: Number, default: 0 },
   availableUnits: { type: Number, required: true },
   soldUnits: { type: Number, default: 0 },
+  incomeGenerated: {type:Number,default:0},
+  profitsGenerated: {type:Number,default:0},
   images: [{ type: String }],
   garment: {
     intendedGender: String,

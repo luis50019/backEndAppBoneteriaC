@@ -11,18 +11,36 @@ export class productsController {
   
   static getAllProducts = async (req, res) => {
     try {
-      const products =await ModelProducts.getAll()
+      const products =await ModelProducts.getAllProducts()
       res.status(201).json(products);
     } catch (e) {
       console.log(e);
     }
   };
 
-  static getProduct = async(req,res)=>{
+  static getTopProducts = async (req, res) => {
+    try {
+      const topProducts = await ModelProducts.getTopProducts();
+      res.status(201).json(topProducts);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  static getProductsAboutToEnd = async (req, res) => {
+    try {
+      const products = await ModelProducts.getProductsAboutToEnd();
+      res.status(201).json(products);
+    } catch (e) {
+      console.log(e);
+    }
+
+  }
+
+  static getProductById = async(req,res)=>{
     try {
       const {id} = req.params;
-      console.log(id);
-      const infoProduct = await ModelProducts.getProduct(id);
+      const infoProduct = await ModelProducts.getProductById(id);
       res.status(200).json(infoProduct)
     } catch (error) {
       console.log(error);

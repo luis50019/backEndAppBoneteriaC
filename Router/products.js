@@ -6,4 +6,6 @@ export const routerProducts = Router();
 routerProducts.get('/', productsController.getAllProducts);
 routerProducts.post('/',productsController.createProduct);
 routerProducts.patch('/',productsController.editProduct);
-routerProducts.get('/:id',productsController.getProduct);
+routerProducts.get('/top',productsController.getTopProducts);
+routerProducts.get('/aboutToEnd',productsController.getProductsAboutToEnd);
+routerProducts.get('/:id',productsController.getProductById);

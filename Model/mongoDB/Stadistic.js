@@ -1,6 +1,12 @@
+import { object } from "zod";
+import { ErrorQueries } from "../../Error/error.js";
 import StadisticsSales from "../../Schema/mongoDB/stadisticsSales.js";
 import summaryInventorySchema from "../../Schema/mongoDB/summaryInventory.schema.js";
+import { InventaryData } from "./utils/valueReturn.js";
+
+
 const dayOfWeek = ["Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sabado"];
+
 
 export default class ModelStadistic {
   static async getTotalSales() {
@@ -33,31 +39,28 @@ export default class ModelStadistic {
 
 	static async getInfoInventary(){
 		try{
-			const infoInvenrary = await summaryInventorySchema.find();
-			return infoInvenrary
+			const infoInventary = await summaryInventorySchema.find();
+			if(!infoInventary){
+				throw new ErrorQueries("no se encontro informacion sobre el inventario","error en stadistic")
+				return []
+			}
+			const dataInfo = [];
+			const pureObject = infoInventary[0].toObject();
+
+			for (const key in pureObject) {
+				if(key !== "_id" && key !== "__v" && key !== "lastFecha"){
+					const data = {
+						'title': InventaryData[key],
+						'value': pureObject[key]
+					}
+					dataInfo.push(data);
+				}
+			};
+
+			return dataInfo;
 
 		}catch(e){
 			console.log(e);
 		}
 	}
 }
-/*
-export const barData = {
-    labels : ["Lunes","Martes","Miercoles","Jueves","Viernes"],
-    datasets :[
-      {
-        data:[1200,500,400,300,800],
-        backgroundColor:["rgb(247,140,148)"],
-        borderColor:["rgb(247,140,148)"],
-        borderWidth:5,
-      }
-    ]
-  }
-		TRANSFORMAS LA FECHA EN UN FORMATO CLARO
-		stadisctic.map(value=>{
-        const date = new Date(value.Fecha);
-        const day =date.getUTCDay();
-        formtStadisctic.labels.push(dayOFWeek[day]);
-        formtStadisctic.datasets[0].data.push(value.Ingresos)
-      })
-*/
