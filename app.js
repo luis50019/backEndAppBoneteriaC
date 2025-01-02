@@ -9,9 +9,7 @@ import morgan from "morgan";
 const PORT = process.PORT || 4000;
 const app = express();
 connectDB()
-app.use(cors({
-  origin: "*"
-}));
+app.use(corsMiddleware());
 app.use(morgan('dev'));
 app.use(json());
 app.use("/products", routerProducts);

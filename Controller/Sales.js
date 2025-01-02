@@ -45,4 +45,14 @@ export class ControllerSales {
     }
   }
 
+  static getSalesInfo = async (req,res)=>{
+    try {
+      const salesInfo = await ModelSales.getSalesInfo();
+      res.status(200).json(salesInfo);
+    } catch (error) {
+      console.log(error);
+      res.status(404).json({message:"error"});
+    }
+  }
+
 }

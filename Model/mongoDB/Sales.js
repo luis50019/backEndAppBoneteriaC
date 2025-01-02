@@ -6,7 +6,7 @@ import MovementInventory from "../../Schema/mongoDB/movementInventory.schema.js"
 import StatisticsSales from "../../Schema/mongoDB/stadisticsSales.js";
 import Ticket from "../../Schema/mongoDB/ticket.schema.js";
 import summaryInventorySchema from "../../Schema/mongoDB/summaryInventory.schema.js";
-
+import SizeClothing from "../../Schema/mongoDB/sizeClothing.schema.js";
 export class ModelSales {
   static newSale = async (saleData) => {
     let session;
@@ -118,6 +118,15 @@ export class ModelSales {
       return tickets;
     } catch (error) {
       throw new ErrorSales("Error al obtener los tickets", "Error en ventas");
+    }
+  };
+
+  static getSalesInfo = async () => {
+    try {
+      const salesInfo = await StatisticsSales.find();
+      return salesInfo;
+    } catch (error) {
+      throw new ErrorSales("Error al obtener la informacion de ventas", "Error en ventas");
     }
   };
 }

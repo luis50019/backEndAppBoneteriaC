@@ -111,18 +111,15 @@ DELIMITER ;
 //objetos de prueba: 
 //primer objeto
 {
-  "productType": "falda",
   "isSecondHand": false,
-  "category": "ropa",
+  --"category": "ropa",
   "productName": "Falda corta de verano",
   "imageUrl": ["https://example.com/falda-larga.jpg","https://example.com/falda-larga-2.jpg"],
   "purchasePrice": 100.0,
   "unitPrice": 300.0,
   "dozenPrice": 3000.0,
   "discount": 1.0,
-  "availableUnits": 30,
-  "soldUnits": 10,
-  "totalInventoryCost": 3000.0,
+  --"availableUnits": 30,
   "targetGender": "femenino",
   "clothingType": "falda",
   "targetAge": "adulto joven",

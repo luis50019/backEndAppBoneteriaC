@@ -21,10 +21,10 @@ export class ModelProducts{
         category = await new Category({ category: dataProduct.category }).save({session});
       }
 
-      let typeProduct = await TypeProduct.findOne({typeProduct:dataProduct.productType});
+      let typeProduct = await TypeProduct.findOne({typeProduct:dataProduct.clothingType});
 
       if (!typeProduct) {
-        typeProduct = await new TypeProduct({ typeProduct: dataProduct.productType }).save({session});
+        typeProduct = await new TypeProduct({ typeProduct: dataProduct.clothingType }).save({session});
       }
       
       let typeClothing = await TypeClothing.findOne({typeclothing:dataProduct.clothingType})
