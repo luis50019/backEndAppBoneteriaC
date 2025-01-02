@@ -12,10 +12,11 @@ const SchemaProducts = z.object({
   productName: z.string().min(3, {
     message: "Especifica con mayor precisión el nombre del producto",
   }),
-  imageUrl: z.array(z.string({message:"No cumple con con el requisito de un enlacee"}),{message
-
-  : "La imagen debe ser un enlace"
-  }).optional(),
+  imageUrl: z
+  .array(
+    z.string().url({ message: "Cada imagen debe ser un enlace válido" })
+  )
+  .optional(),
   purchasePrice: z
     .number({ invalid_type_error: "El precio de compra debe ser un número" })
     .positive({ message: "El precio de compra no es válido" }),
