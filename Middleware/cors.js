@@ -18,7 +18,7 @@ export const corsMiddleware = ({ accepted_origins = ACCEPTED_ORIGINS } = {}) => 
       }
 
       // Verificar si el origen está permitido
-      if (accepted_origins.includes(origin)) {
+      if (ACCEPTED_ORIGINS.includes(origin)) {
         return callback(null, true);
       }
 
