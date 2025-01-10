@@ -71,6 +71,47 @@ export class productsController {
 
   static createProduct = async (req, res) => {
     try {
+      const { category } = req.body;
+      
+      // Validación inicial
+      const resultNewProduct = validateNewProducts(req.body);
+      if (!resultNewProduct.success) {
+        console.log(req.body)
+        throw new Validation("Error de validación del Producto", resultNewProduct.error);
+      }
+  
+      // Validación específica según la categoría
+      let result;
+      if (category === "ropa") {
+        result = validateItemOfClothing(req.body);
+      } else if (category === "otros") {
+        result = validateOtherProducts(req.body);
+      } else {
+        throw new Validation("Categoría no válida", [{ message: "La categoría debe ser 'ropa' u 'otros'" }]);
+      }
+  
+      if (!result.success) {
+        throw new Validation("Error de validación específica", result.error.errors);
+      }
+  
+      // Si todas las validaciones pasan, crea el producto
+      const product = await ModelProducts.createProduct(req.body);
+      res.status(201).json(product);
+  
+    } catch (error) {
+      console.log("Ocurrió un problema", error);
+      if (error instanceof Validation) {
+        res.status(406).json({ message: error.message, errors: error.errors });
+      } else if (error instanceof ErrorProducts || error instanceof ErrorQueries) {
+        res.status(406).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Error interno del servidor" });
+      }
+    }
+  };
+
+  /*static createProduct = async (req, res) => {
+    try {
       const {category} = req.body
       const resultNewProduct = validateNewProducts(req.body);
       if(!resultNewProduct.success){
@@ -105,4 +146,5 @@ export class productsController {
       
     }
   };
+  */
 }

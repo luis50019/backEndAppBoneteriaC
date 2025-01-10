@@ -1,7 +1,7 @@
 import z, { object } from "zod";
 
 // Esquema para productos generales
-const SchemaProducts = z.object({
+/*const SchemaProducts = z.object({
   productType: z
     .string()
     .min(5, { message: "Especifica con mayor precisión el tipo de producto" }),
@@ -12,11 +12,12 @@ const SchemaProducts = z.object({
   productName: z.string().min(3, {
     message: "Especifica con mayor precisión el nombre del producto",
   }),
-  imageUrl: z
-  .array(
-    z.string().url({ message: "Cada imagen debe ser un enlace válido" })
-  )
-  .optional(),
+  imageUrl: z.array(
+    z.string()
+      .startsWith("https://res.cloudinary.com/")
+      .min(1, "At least one image URL is required"),
+      {invalid_type_error:"el arreglo esta mal",message:"super mal",required_error:"No me llego"}
+  ),
   purchasePrice: z
     .number({ invalid_type_error: "El precio de compra debe ser un número" })
     .positive({ message: "El precio de compra no es válido" }),
@@ -24,8 +25,7 @@ const SchemaProducts = z.object({
     .number({invalid_type_error:"El precio por unidad debe ser un número"})
     .positive({ message: "El precio por unidad no es válido" }),
   dozenPrice: z
-    .number({invalid_type_error:"El precio por docena deber ser un número"})
-    .positive({ message: "El precio por docena no es válido" }),
+    .number({invalid_type_error:"El precio por docena deber ser un número"}).positive(),
   discount: z
     .number({ invalid_type_error: "El descuento debe ser un número" })
     .positive({ message: "El descuento no es válido" }),
@@ -49,6 +49,52 @@ const SchemaProducts = z.object({
     })
     .optional(),
 });
+*/
+
+const SchemaProducts = z.object({
+  category: z.string().min(4, {
+    message: "Especifica con mayor precisión la categoría del producto",
+  }),
+  productName: z.string().min(3, {
+    message: "Especifica con mayor precisión el nombre del producto",
+  }),
+  ImageUrl: z.array(
+    z.string().url({ message: "Cada imagen debe ser un enlace válido" })
+  ),
+  purchasePrice: z
+    .number({ invalid_type_error: "El precio de compra debe ser un número" })
+    .positive({ message: "El precio de compra no es válido" }),
+  unitPrice: z
+    .number({invalid_type_error:"El precio por unidad debe ser un número"})
+    .positive({ message: "El precio por unidad no es válido" }),
+  dozenPrice: z
+    .number({invalid_type_error:"El precio por docena deber ser un número"}).positive(),
+  discount: z
+    .number({ invalid_type_error: "El descuento debe ser un número" })
+    .positive({ message: "El descuento no es válido" }),
+  availableUnits: z
+    .number({invalid_type_error:"Las unidades disponibles deben ser un número "})
+    .positive({ message: "Las unidades disponibles no son válidas" })
+    .int(),
+  unitsSold: z
+    .number({invalid_type_error:"Las unidades vendidas deben ser un número"})
+    .positive({ message: "Las unidades vendidas no son válidas" })
+    .int({
+      message: "El número de unidades vendidas no puede contener punto decimal",
+    })
+    .optional(),
+  totalInventoryCost: z
+    .number({
+      invalid_type_error: "El costo total del inventario debe ser un número",
+    })
+    .positive({
+      message: "El costo total del inventario debe ser un valor positivo",
+    })
+    .optional(),
+  isSecondHand: z.boolean().optional(),
+}).passthrough();
+
+
 
 // Esquema para prendas de ropa
 const SchemaItemOfClothing = z.object({
@@ -130,3 +176,14 @@ export const validateNewInfo = (object)=>{
 //   "minimumAge":-5,
 //   "maximumAge":-10
 // }
+
+/*
+ImageUrl: z
+  .array(
+    z.string().url({ message: "Cada imagen debe ser un enlace válido" })
+  )
+
+*/
+
+
+
