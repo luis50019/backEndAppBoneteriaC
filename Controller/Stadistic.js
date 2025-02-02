@@ -22,5 +22,6 @@ export class ControllerStadistic{
       console.log(error);
     }
   }
+  
 
 }

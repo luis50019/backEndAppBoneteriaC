@@ -3,6 +3,8 @@ import { ErrorQueries } from "../../Error/error.js";
 import StadisticsSales from "../../Schema/mongoDB/stadisticsSales.js";
 import summaryInventorySchema from "../../Schema/mongoDB/summaryInventory.schema.js";
 import { InventaryData } from "./utils/valueReturn.js";
+import categorySchema from "../../Schema/mongoDB/category.schema.js";
+import sizeClothingSchema from '../../Schema/mongoDB/sizeClothing.schema.js';
 
 
 const dayOfWeek = ["Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sabado"];
@@ -63,4 +65,32 @@ export default class ModelStadistic {
 			console.log(e);
 		}
 	}
+
+	static async getInfoInventaryByCategoryAndSize(){
+		try{
+			const dataInfoInventary = {categoriesOfPruducts,sizesOfProducts}
+			const categories = await categorySchema.find();
+			const sizes = await sizeClothingSchema.find();
+			dataInfoInventary.categoriesOfPruducts = categories;
+			dataInfoInventary.sizesOfProducts = sizes;
+
+			const dataInfo = [];
+			const pureObject = dataInfoInventary.toObject();
+			for (const key in pureObject) {
+				if(key !== "_id" && key !== "__v" && key !== "lastFecha"){
+					const data = {
+						'title': InventaryData[key],
+						'value': pureObject[key]
+					}
+					dataInfo.push(data);
+				}
+			};
+			return dataInfo;
+
+			
+		}catch(e){
+			console.log(e)
+		}
+	}
+
 }

@@ -3,8 +3,7 @@ import { number } from 'zod';
 
 const productSchema = new mongoose.Schema({
   isSecondHand: { type: Boolean, required: true },
-  category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
-  typeProduct: { type: mongoose.Schema.Types.ObjectId, ref: 'TypeProduct', required: true },
+  category: { type: mongoose.Schema.Types.ObjectId, ref: 'categories', required: true },
   productName: { type: String, required: true },
   purchasePrice: { type: Number, required: true }, // Encrypted
   unitPrice: { type: Number, required: true }, // Encrypted
@@ -17,9 +16,7 @@ const productSchema = new mongoose.Schema({
   images: [{ type: String }],
   garment: {
     intendedGender: String,
-    typeClothing: { type: mongoose.Schema.Types.ObjectId, ref: 'TypeClothing' },
-    desiredAge: { type: mongoose.Schema.Types.ObjectId, ref: 'DesiredAge' },
-    size: { type: mongoose.Schema.Types.ObjectId, ref: 'SizeClothing' },
+    size: { type: mongoose.Schema.Types.ObjectId, ref: 'sizeclothings' },
   },
   otherProduct: {
     material: { type: mongoose.Schema.Types.ObjectId, ref: 'TypeMaterial' },
@@ -28,4 +25,3 @@ const productSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 export default mongoose.model('Product', productSchema);
-

@@ -18,7 +18,28 @@ export class productsController {
     }
   };
 
-  static getTopProducts = async (req, res) => {
+  static getAllCategories = async (req, res) => {
+    try {
+      const categories = await ModelProducts.getAllCategories();
+      res.status(201).json(categories);
+    } catch (e) {
+      res.status(406).json("ddwdd"+e);
+    }
+
+  }
+  
+  static getAllSizeByCategory=async(req,res)=>{
+    try {
+      const {category} = req.params;
+      console.log(category)
+      const size = await ModelProducts.getAllSizeByCategories(category);
+      res.status(201).json(size);
+    } catch (error) {
+      console.log("deudeduh7dsude7f: "+e);
+    }
+  }
+
+  static getTopProduct = async (req, res) => {
     try {
       const topProducts = await ModelProducts.getTopProducts();
       res.status(201).json(topProducts);
@@ -40,7 +61,8 @@ export class productsController {
   static getProductById = async(req,res)=>{
     try {
       const {id} = req.params;
-      const infoProduct = await ModelProducts.getProductById(id);
+      console.log(id)
+      const infoProduct = await ModelProducts.getProductsById(id);
       res.status(200).json(infoProduct)
     } catch (error) {
       console.log(error);
@@ -53,7 +75,7 @@ export class productsController {
       const resultValidate = validateNewInfo(req.body);
 
       if(!resultValidate.success){
-        throw new Validation("Error de validacion de la nueva informacion",resultValidate.error.errors);
+        throw new Validation("Error de validacion de la nueva informacion",resultValidate);
       }
 
       const resultEdit = await ModelProducts.editProduct(req.body);
@@ -77,21 +99,7 @@ export class productsController {
       const resultNewProduct = validateNewProducts(req.body);
       if (!resultNewProduct.success) {
         console.log(req.body)
-        throw new Validation("Error de validación del Producto", resultNewProduct.error);
-      }
-  
-      // Validación específica según la categoría
-      let result;
-      if (category === "ropa") {
-        result = validateItemOfClothing(req.body);
-      } else if (category === "otros") {
-        result = validateOtherProducts(req.body);
-      } else {
-        throw new Validation("Categoría no válida", [{ message: "La categoría debe ser 'ropa' u 'otros'" }]);
-      }
-  
-      if (!result.success) {
-        throw new Validation("Error de validación específica", result.error.errors);
+        throw new Validation("Error de validación del Producto", resultNewProduct.error.errors[0],path);
       }
   
       // Si todas las validaciones pasan, crea el producto

@@ -1,13 +1,10 @@
-import mongoose from 'mongoose';
+import mongoose, { ObjectId } from 'mongoose';
 
 import Product from '../../Schema/mongoDB/product.schema.js';
-import Category from '../../Schema/mongoDB/category.schema.js';
-import TypeProduct from '../../Schema/mongoDB/typeProduct.schema.js';
-import TypeClothing from '../../Schema/mongoDB/typeClothing.schema.js';
-import DesiredAge from '../../Schema/mongoDB/desiredAge.schema.js';
-import SizeClothing from '../../Schema/mongoDB/sizeClothing.schema.js';
+import categories from '../../Schema/mongoDB/category.schema.js';
+import sizeclothings from '../../Schema/mongoDB/sizeClothing.schema.js';
 import SummaryInventory from '../../Schema/mongoDB/summaryInventory.schema.js';
-import { encryptData,decryptData } from './utils/encrypData.js';
+import { ErrorProducts } from '../../Error/error.js';
 
 export class ModelProducts{
   static createProduct = async (dataProduct)=>{
@@ -15,48 +12,21 @@ export class ModelProducts{
     try{
       session = await mongoose.startSession();
       session.startTransaction();
-      let category = await Category.findOne({category:dataProduct.category});
+      let category = await categories.findOne({_id:dataProduct.category});
 
       if (!category) {
-        category = await new Category({ category: dataProduct.category }).save({session});
+        throw new ErrorProducts("La categoria no existe","foundCategory");
       }
-
-      let typeProduct = await TypeProduct.findOne({typeProduct:dataProduct.clothingType});
-
-      if (!typeProduct) {
-        typeProduct = await new TypeProduct({ typeProduct: dataProduct.clothingType }).save({session});
-      }
-      
-      let typeClothing = await TypeClothing.findOne({typeclothing:dataProduct.clothingType})
-
-      if(!typeClothing){
-        typeClothing = await new TypeClothing({typeclothing:dataProduct.clothingType}).save({session});
-      }
-      
-      let desiredAge = await DesiredAge.findOne({
-        desiredAge:dataProduct.targetAge,
-        minimuAge:dataProduct.minimumAge,
-        maximumAge:dataProduct.maximumAge
-      });
-
-      if (!desiredAge) {
-        desiredAge = await new DesiredAge({
-          desiredAge:dataProduct.targetAge,
-          minimuAge:dataProduct.minimumAge,
-          maximumAge:dataProduct.maximumAge
-        }).save({session});
-      }
-
-      let size = await SizeClothing.findOne({size:dataProduct.size});
+          
+      let size = await sizeclothings.findOne({_id:dataProduct.size,type_product:dataProduct.category});
       
       if (!size) {
-        size = await new SizeClothing({ size: dataProduct.size }).save({session});
+        throw new ErrorProducts("No se encontro la talla de ropa","foundSize");
       }
 
       const product = new Product({
         isSecondHand: dataProduct.isSecondHand,
         category: category._id,
-        typeProduct: typeProduct._id,
         productName: dataProduct.productName,
         purchasePrice:dataProduct.purchasePrice,
         unitPrice: dataProduct.unitPrice,
@@ -67,8 +37,6 @@ export class ModelProducts{
         images: [...dataProduct.ImageUrl],
         garment: {
           intendedGender: dataProduct.targetGender,
-          typeClothing: typeClothing._id,
-          desiredAge: desiredAge._id,
           size: size._id,
         }
       });
@@ -105,6 +73,26 @@ export class ModelProducts{
       session.endSession();
     }
   }
+  //methode for get all size and all category of the date base for return in the requeste of the front
+
+  static getAllCategories = async()=>{
+    try {
+      const allCategory = await categories.find({}).exec();
+      return allCategory;
+    } catch (error) {
+      console.log("Error al obtener las categorias"+error);
+    }
+  }
+  static getAllSizeByCategories = async(idCategory)=>{
+    try {
+      const id = new mongoose.Types.ObjectId(idCategory);
+      const allSizeCategory = await sizeclothings.find({type_product:id},{size:1, _id:0}).exec();
+      console.log(allSizeCategory)
+      return allSizeCategory;
+    } catch (error) {
+      console.log("Error al obtener los size: ",error)
+    }
+  };
 
   static getAllProducts = async()=>{
     try{
@@ -132,7 +120,8 @@ export class ModelProducts{
         soldUnits:1,
         incomeGenerated:1,
         profitsGenerated:1,
-        availableUnits:1
+        availableUnits:1,
+        sizeclothings:1,
       }).sort({soldUnits:-1}).limit(2).populate('garment.size','size -_id')
       .exec();
 
@@ -151,7 +140,7 @@ export class ModelProducts{
         incomeGenerated:1,
         profitsGenerated:1,
         availableUnits:1
-      }).populate('garment.size','size -_id')
+      }).populate('sizeclothings','size -_id')
       .exec();
 
       return products
@@ -160,16 +149,16 @@ export class ModelProducts{
     }
   }
 
-  static getProductById = async (id)=>{
+  static getProductsById = async(idProduct)=>{
     try{
-      const productFind = await Product.findById(id).populate('category','category -_id') 
-          .populate('typeProduct','typeProduct -_id') 
-          .populate('garment.typeClothing','typeclothing -_id') 
-          .populate('garment.desiredAge','desiredAge minimumAge maximumAge -_id') 
-          .populate('garment.size','size -_id')
-          .populate('otherProduct.material','material -_id')
-          .exec();
-      return productFind;
+      
+      const product = await Product.find({_id:idProduct},{
+        productName:1,
+        images:1,
+        productName:1,
+        size:1
+      }).populate('garment.size','size -_id').exec(); 
+      return product;
     }catch(e){
       console.log(e)
     }

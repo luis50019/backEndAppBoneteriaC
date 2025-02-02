@@ -1,60 +1,9 @@
 import z, { object } from "zod";
 
 // Esquema para productos generales
-/*const SchemaProducts = z.object({
-  productType: z
-    .string()
-    .min(5, { message: "Especifica con mayor precisión el tipo de producto" }),
-  category: z.string().min(4, {
-    message: "Especifica con mayor precisión la categoría del producto",
-  }),
-
-  productName: z.string().min(3, {
-    message: "Especifica con mayor precisión el nombre del producto",
-  }),
-  imageUrl: z.array(
-    z.string()
-      .startsWith("https://res.cloudinary.com/")
-      .min(1, "At least one image URL is required"),
-      {invalid_type_error:"el arreglo esta mal",message:"super mal",required_error:"No me llego"}
-  ),
-  purchasePrice: z
-    .number({ invalid_type_error: "El precio de compra debe ser un número" })
-    .positive({ message: "El precio de compra no es válido" }),
-  unitPrice: z
-    .number({invalid_type_error:"El precio por unidad debe ser un número"})
-    .positive({ message: "El precio por unidad no es válido" }),
-  dozenPrice: z
-    .number({invalid_type_error:"El precio por docena deber ser un número"}).positive(),
-  discount: z
-    .number({ invalid_type_error: "El descuento debe ser un número" })
-    .positive({ message: "El descuento no es válido" }),
-  availableUnits: z
-    .number({invalid_type_error:"Las unidades disponibles deben ser un número "})
-    .positive({ message: "Las unidades disponibles no son válidas" })
-    .int(),
-  soldUnits: z
-    .number({invalid_type_error:"Las unidades vendidas deben ser un número"})
-    .positive({ message: "Las unidades vendidas no son válidas" })
-    .int({
-      message: "El número de unidades vendidas no puede contener punto decimal",
-    })
-    .optional(),
-  totalInventoryCost: z
-    .number({
-      invalid_type_error: "El costo total del inventario debe ser un número",
-    })
-    .positive({
-      message: "El costo total del inventario debe ser un valor positivo",
-    })
-    .optional(),
-});
-*/
 
 const SchemaProducts = z.object({
-  category: z.string().min(4, {
-    message: "Especifica con mayor precisión la categoría del producto",
-  }),
+  category: z.string(),
   productName: z.string().min(3, {
     message: "Especifica con mayor precisión el nombre del producto",
   }),
@@ -92,36 +41,8 @@ const SchemaProducts = z.object({
     })
     .optional(),
   isSecondHand: z.boolean().optional(),
-}).passthrough();
-
-
-
-// Esquema para prendas de ropa
-const SchemaItemOfClothing = z.object({
-  targetGender: z
-    .string({ required_error: "Indica el género destinado" })
-    .min(4, { message: "Especifica con mayor precisión el género" }),
-
-  clothingType: z
-    .string({ required_error: "Indica el tipo de prenda" })
-    .min(3, { message: "Especifica con mayor precisión el tipo de prenda" }),
-
-  targetAge: z
-    .string({ required_error: "Indica la edad destinada" })
-    .min(5, { message: "Especifica con mayor precisión la edad destinada" }),
-
   size: z.string().optional(),
-  minimumAge: z
-    .number({ message: "La edad mínima debe ser un número" })
-    .int({ message: "La edad mínima no puede tener punto decimal" })
-    .positive({ message: "La edad mínima no es válida" })
-    .optional(),
-  maximumAge: z
-    .number({ message: "La edad máxima debe ser un número" })
-    .int({ message: "La edad máxima no puede tener punto decimal" })
-    .positive({ message: "La edad máxima no es válida" })
-    .optional(),
-});
+}).passthrough();
 
 const SchemaEditProduct = z.object({
   "field": z.string().min(2),

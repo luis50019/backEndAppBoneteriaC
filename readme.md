@@ -1,63 +1,16 @@
-mongodb+srv://teddiazdiaz019:*****@inventarioboneteria.jiy1g.mongodb.net/inventario
+//validar que  en la base de datos no se agreguen valores repetidos
+// eliminar el documento de tipo de producto
+//eliminar el desiredage
+//modificar lo siguiente:
+  pasar el valor de talla_description en el documento de size
+  y colocarlo en el documento de desiredAge
+  y en el documento size
+  solo debe de aparecer:
+    talla
+    al tipo de prenda al que te pertenece
+    al desiredAge al que pertenece
+    
 
-[]crear server
-[] crear router de productos
-[] crear schema de productos
-[] crear 
-
-// peticiones
--> estadisticas
--> total del inventario y ganancia total
-
-//modificaciones mas avanzadas
-[] Crear nuestros propios errores
--- Cambiar el delimitador para crear los triggers
-DELIMITER $$
-
--- Trigger para calcular la ganancia antes de insertar
-CREATE TRIGGER calculate_ganancia_before_insert
-BEFORE INSERT ON Productos
-FOR EACH ROW
-BEGIN
-  -- Asegurarse de que unidades_vendidas no sea NULL y calcular la ganancia
-  SET NEW.unidades_vendidas = IFNULL(NEW.unidades_vendidas, 0);
-  SET NEW.ganancia = ((NEW.precio_pieza * (1 - NEW.descuento / 100)) - NEW.precio_compra) * NEW.unidades_vendidas;
-END$$
-
--- Trigger para recalcular la ganancia antes de actualizar
-CREATE TRIGGER calculate_ganancia_before_update
-BEFORE UPDATE ON Productos
-FOR EACH ROW
-BEGIN
-  -- Asegurarse de que unidades_vendidas no sea NULL y recalcular la ganancia
-  SET NEW.unidades_vendidas = IFNULL(NEW.unidades_vendidas, 0);
-  SET NEW.ganancia = ((NEW.precio_pieza * (1 - NEW.descuento / 100)) - NEW.precio_compra) * NEW.unidades_vendidas;
-END$$
-
--- Trigger para calcular el costo total del inventario antes de insertar
-CREATE TRIGGER update_costo_total_inventario
-BEFORE INSERT ON Productos
-FOR EACH ROW
-BEGIN
-  -- Asegurarse de que precio_compra y unidades_disponibles no sean NULL
-  SET NEW.precio_compra = IFNULL(NEW.precio_compra, 0);
-  SET NEW.unidades_disponibles = IFNULL(NEW.unidades_disponibles, 0);
-  SET NEW.costo_total_inventario = NEW.precio_compra * NEW.unidades_disponibles;
-END$$
-
--- Trigger para recalcular el costo total del inventario antes de actualizar
-CREATE TRIGGER update_costo_total_inventario_on_update
-BEFORE UPDATE ON Productos
-FOR EACH ROW
-BEGIN
-  -- Asegurarse de que precio_compra y unidades_disponibles no sean NULL
-  SET NEW.precio_compra = IFNULL(NEW.precio_compra, 0);
-  SET NEW.unidades_disponibles = IFNULL(NEW.unidades_disponibles, 0);
-  SET NEW.costo_total_inventario = NEW.precio_compra * NEW.unidades_disponibles;
-END$$
-
--- Volver al delimitador por defecto
-DELIMITER ;
 
 //ventas
 {
