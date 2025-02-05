@@ -154,10 +154,19 @@ export class ModelProducts{
       
       const product = await Product.find({_id:idProduct},{
         productName:1,
+        category:1,
         images:1,
         productName:1,
+        soldUnits:1,
+        purchasePrice:1,
+        dozenPrice:1,
+        incomeGenerated:1,
+        profitsGenerated:1,
+        unitPrice:1,
+        availableUnits:1,
+        discount:1,
         size:1
-      }).populate('garment.size','size -_id').exec(); 
+      }).populate('garment.size','size -_id').populate('category', 'category').exec();
       return product;
     }catch(e){
       console.log(e)
