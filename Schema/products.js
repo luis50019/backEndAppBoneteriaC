@@ -18,13 +18,10 @@ const SchemaProducts = z.object({
     .positive({ message: "El precio por unidad no es válido" }),
   dozenPrice: z
     .number({invalid_type_error:"El precio por docena deber ser un número"}).positive(),
-  discount: z
-    .number({ invalid_type_error: "El descuento debe ser un número" })
-    .positive({ message: "El descuento no es válido" }),
+  discount:z.number().min(0, { message: "El número debe ser igual o mayor a 0" }),
   availableUnits: z
     .number({invalid_type_error:"Las unidades disponibles deben ser un número "})
-    .positive({ message: "Las unidades disponibles no son válidas" })
-    .int(),
+    .min(0, { message: "Las unidades disponibles no son válidas" }).int(),
   totalInventoryCost: z
     .number({
       invalid_type_error: "El costo total del inventario debe ser un número",
