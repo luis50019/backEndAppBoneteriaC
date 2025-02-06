@@ -86,7 +86,7 @@ export class ModelProducts{
   static getAllSizeByCategories = async(idCategory)=>{
     try {
       const id = new mongoose.Types.ObjectId(idCategory);
-      const allSizeCategory = await sizeclothings.find({type_product:id},{size:1, _id:0}).exec();
+      const allSizeCategory = await sizeclothings.find({type_product:id},{size:1, _id:1}).exec();
       console.log(allSizeCategory)
       return allSizeCategory;
     } catch (error) {
