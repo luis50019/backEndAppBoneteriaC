@@ -99,7 +99,7 @@ export class productsController {
       const resultNewProduct = validateNewProducts(req.body);
       if (!resultNewProduct.success) {
         console.log(req.body)
-        throw new Validation("Error de validación del Producto", resultNewProduct.error.errors[0],path);
+        throw new Validation("Error de validación del Producto", resultNewProduct.error,path);
       }
   
       // Si todas las validaciones pasan, crea el producto
