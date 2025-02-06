@@ -33,7 +33,7 @@ export class ModelProducts{
         dozenPrice:dataProduct.dozenPrice,
         discount: dataProduct.discount,
         availableUnits: dataProduct.availableUnits,
-        soldUnits: dataProduct.soldUnits,
+        soldUnits: 0,
         images: [...dataProduct.ImageUrl],
         garment: {
           intendedGender: dataProduct.targetGender,

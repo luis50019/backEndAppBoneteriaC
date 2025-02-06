@@ -25,13 +25,6 @@ const SchemaProducts = z.object({
     .number({invalid_type_error:"Las unidades disponibles deben ser un número "})
     .positive({ message: "Las unidades disponibles no son válidas" })
     .int(),
-  unitsSold: z
-    .number({invalid_type_error:"Las unidades vendidas deben ser un número"})
-    .positive({ message: "Las unidades vendidas no son válidas" })
-    .int({
-      message: "El número de unidades vendidas no puede contener punto decimal",
-    })
-    .optional(),
   totalInventoryCost: z
     .number({
       invalid_type_error: "El costo total del inventario debe ser un número",
