@@ -1,10 +1,8 @@
 import { ErrorProducts, ErrorQueries, Validation } from "../Error/error.js";
 import { ModelProducts } from "../Model/mongoDB/Products.js";
 import {
-  validateItemOfClothing,
   validateNewInfo,
   validateNewProducts,
-  validateOtherProducts,
 } from "../Schema/products.js";
 
 export class productsController {
@@ -118,41 +116,13 @@ export class productsController {
     }
   };
 
-  /*static createProduct = async (req, res) => {
-    try {
-      const {category} = req.body
-      const resultNewProduct = validateNewProducts(req.body);
-      if(!resultNewProduct.success){
-        throw new Validation("Error of validation Producto", resultNewProduct.error.errors)
-      }
-      let result = {}
-      if(category == "ropa"){
-        result = validateItemOfClothing(req.body)
-      }
-      if(category == "otros"){
-        result = validateOtherProducts(req.body)
-      }
-      
-      if(!result.success){
-        throw new Validation("Error of validation item cloathing", result.error.errors);
-      }
-
-      const product = await ModelProducts.createProduct(req.body)
-      res.status(201).json(product)
-
-    } catch (error) {
-      console.log("Ocurrio un problemon",error);
-      if(error instanceof Validation){
-        res.status(406).json(error.message)
-      }
-      if(error instanceof ErrorProducts){
-        res.status(406).json(error.message)
-      }
-      if(error instanceof ErrorQueries){
-        res.status(406).json(error.message)
-      }
-      
+  static getGender = async (req, res) => {
+    try{
+      const genders = await ModelProducts.getGenders();
+      res.status(201).json(genders);
+    }catch(e){
+      res.status(406).json("ddwdd"+e);
     }
-  };
-  */
+  }
+  
 }

@@ -4,6 +4,7 @@ import Product from '../../Schema/mongoDB/product.schema.js';
 import categories from '../../Schema/mongoDB/category.schema.js';
 import sizeclothings from '../../Schema/mongoDB/sizeClothing.schema.js';
 import SummaryInventory from '../../Schema/mongoDB/summaryInventory.schema.js';
+import genders from '../../Schema/mongoDB/gender.schema.js';
 import { ErrorProducts } from '../../Error/error.js';
 
 export class ModelProducts{
@@ -171,6 +172,19 @@ export class ModelProducts{
     }catch(e){
       console.log(e)
     }
+  }
+
+  static getGenders = async()=>{
+    try{
+      const genders = await genders.find({},{
+        gender:1,
+        _id:1,
+      }).exec();
+      return genders;
+    }catch(e){
+      console.log(e)
+    }
+
   }
 
 

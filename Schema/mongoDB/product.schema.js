@@ -15,7 +15,7 @@ const productSchema = new mongoose.Schema({
   profitsGenerated: {type:Number,default:0},
   images: [{ type: String }],
   garment: {
-    intendedGender: String,
+    intendedGender: { type: mongoose.Schema.Types.ObjectId, ref: 'genders' },
     size: { type: mongoose.Schema.Types.ObjectId, ref: 'sizeclothings' },
   },
   otherProduct: {
