@@ -176,11 +176,11 @@ export class ModelProducts{
 
   static getGenders = async()=>{
     try{
-      const genders = await genders.find({},{
+      const allGenders = await genders.find({},{
         gender:1,
         _id:1,
       }).exec();
-      return genders;
+      return allGenders;
     }catch(e){
       console.log(e)
     }

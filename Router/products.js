@@ -9,6 +9,6 @@ routerProducts.patch('/',productsController.editProduct);
 routerProducts.get('/top',productsController.getTopProduct);
 routerProducts.get('/aboutToEnd',productsController.getProductsAboutToEnd);
 routerProducts.get('/categories',productsController.getAllCategories);
-routerProducts.get('/genders',productsController.getAllCategories);
+routerProducts.get('/genders',productsController.getGender);
 routerProducts.get('/size/:category',productsController.getAllSizeByCategory);
 routerProducts.get('/:id',productsController.getProductById);
