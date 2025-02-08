@@ -167,7 +167,7 @@ export class ModelProducts{
         availableUnits:1,
         discount:1,
         size:1
-      }).populate('garment.size','size -_id').populate('category', 'category').exec();
+      }).populate('garment.size','size').populate('category', 'category').exec();
       return product;
     }catch(e){
       console.log(e)
