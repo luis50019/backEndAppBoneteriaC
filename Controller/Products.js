@@ -69,30 +69,39 @@ export class productsController {
 
   static editProduct = async(req,res)=>{
     try {
-      //recibo el id, el atributo que va a cambiar
-      const resultValidate = validateNewInfo(req.body);
+      const { id } = req.params;
+      console.log(req.body)
+      const resultValidate = validateNewProducts(req.body);
 
       if(!resultValidate.success){
-        throw new Validation("Error de validacion de la nueva informacion",resultValidate);
+        throw new Validation("Error de validacion de la nueva informacion",resultValidate.error);
       }
 
-      const resultEdit = await ModelProducts.editProduct(req.body);
-      res.status(202).json(resultEdit);
+      const resultEdit = await ModelProducts.updateProduct(id,req.body);
+      res.status(200).json(resultEdit);
       
-    } catch (error) {
+    }catch (error) {
+      console.log("Error: ",error);
       if(error instanceof Validation){
-        res.status(406).json(error.message);
+        res.status(406).json("Error de validacion");
       }
+    }
+  }
+
+  static deleteProductByID = async(req,res)=>{
+    try {
+      const { id } = req.params;
+      const resultDelete = await ModelProducts.deleteProduct(id);
+      res.status(200).json({message:"Producto eliminado",producto:resultDelete});
+    } catch (error) {
       if(error instanceof ErrorProducts){
-        res.status(406).json(error.message)
+        res.status(406).json("No se encontro el producto");
       }
     }
   }
 
   static createProduct = async (req, res) => {
     try {
-      const { category } = req.body;
-      
       // Validación inicial
       const resultNewProduct = validateNewProducts(req.body);
       if (!resultNewProduct.success) {

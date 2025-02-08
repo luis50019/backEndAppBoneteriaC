@@ -74,6 +74,29 @@ export class ModelProducts{
       session.endSession();
     }
   }
+
+  static updateProduct = async (idProduct, newInfoProduct)=>{
+    try {
+      const productUpdate = await Product.findByIdAndUpdate(idProduct, newInfoProduct, { new: true, upsert: true });
+      return productUpdate;
+    } catch (error) {
+      console.log("Erro al actualizar: ",error);
+    }
+  }
+
+  static deleteProduct = async (idProduct)=>{
+    try {
+      const product = await Product.findByIdAndDelete(idProduct);
+      if(!product){
+        throw new ErrorProducts("No se encontro el producto","notFoundProduct");
+      }
+      return product;
+    } catch (error) {
+      throw new ErrorProducts("No se encontro el producto","notFoundProduct");
+    }
+  }
+
+
   //methode for get all size and all category of the date base for return in the requeste of the front
 
   static getAllCategories = async()=>{
