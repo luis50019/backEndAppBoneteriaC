@@ -114,10 +114,13 @@ export class productsController {
       res.status(201).json(product);
   
     } catch (error) {
-      console.log("Ocurrió un problema", error);
       if (error instanceof Validation) {
         res.status(406).json({ message: error.message, errors: error.errors });
-      } else if (error instanceof ErrorProducts || error instanceof ErrorQueries) {
+      }
+      if(error instanceof ErrorQueries){
+        res.status(406).json("Error de consulta");
+      }
+      if (error instanceof ErrorProducts) {
         res.status(406).json({ message: error.message });
       } else {
         res.status(500).json({ message: "Error interno del servidor" });

@@ -13,6 +13,13 @@ export class ModelProducts{
     try{
       session = await mongoose.startSession();
       session.startTransaction();
+      let existProduct = await Product.findOne({productName:dataProduct.productName});
+
+      if(existProduct){
+        throw new ErrorProducts("El producto ya existe","foundProduct");
+      
+      }
+
       let category = await categories.findOne({_id:dataProduct.category});
 
       if (!category) {
@@ -69,7 +76,9 @@ export class ModelProducts{
 
     }catch(e){
       await session.abortTransaction()
-      console.log("Error: ",e)
+      if(e instanceof ErrorProducts){
+        throw new ErrorProducts("El producto ya existe","foundProduct");
+      }
     }finally{
       session.endSession();
     }
