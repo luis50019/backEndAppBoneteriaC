@@ -118,7 +118,7 @@ export class productsController {
         res.status(406).json({ message: error.message, errors: error.errors });
       }
       if(error instanceof ErrorQueries){
-        res.status(406).json("Error de consulta");
+        res.status(409).json("Error de consulta");
       }
       if (error instanceof ErrorProducts) {
         res.status(406).json({ message: error.message });
