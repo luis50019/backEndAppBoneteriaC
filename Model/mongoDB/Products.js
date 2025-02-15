@@ -17,7 +17,6 @@ export class ModelProducts{
 
       if(existProduct){
         throw new ErrorProducts("El producto ya existe","foundProduct");
-      
       }
 
       let category = await categories.findOne({_id:dataProduct.category});
@@ -87,8 +86,7 @@ export class ModelProducts{
   static updateProduct = async (idProduct, newInfoProduct)=>{
     try {
       let existProduct = await Product.findOne({productName:newInfoProduct.productName});
-      console.log("prodcuto: "+existProduct._id)
-      if(existProduct._id !== idProduct){
+      if(existProduct._id != idProduct){
         throw new ErrorProducts("El nombre del producto ya existe","nameproduct alredy exist")
       }
       const productUpdate = await Product.findByIdAndUpdate(idProduct, newInfoProduct, { new: true, upsert: true });
