@@ -86,10 +86,17 @@ export class ModelProducts{
 
   static updateProduct = async (idProduct, newInfoProduct)=>{
     try {
+      let existProduct = await Product.findOne({productName:newInfoProduct.productName});
+      console.log("prodcuto: "+existProduct._id)
+      if(existProduct._id !== idProduct){
+        throw new ErrorProducts("El nombre del producto ya existe","nameproduct alredy exist")
+      }
       const productUpdate = await Product.findByIdAndUpdate(idProduct, newInfoProduct, { new: true, upsert: true });
       return productUpdate;
     } catch (error) {
-      console.log("Erro al actualizar: ",error);
+      if(error instanceof ErrorProducts){
+        throw new ErrorProducts("El nombre del producto ya existe","nameProducto already existe");
+      }
     }
   }
 
@@ -101,7 +108,9 @@ export class ModelProducts{
       }
       return product;
     } catch (error) {
-      throw new ErrorProducts("No se encontro el producto","notFoundProduct");
+      if(error instanceof ErrorProducts){
+        throw new ErrorProducts("No se encontro el producto","notFoundProduct");
+      }
     }
   }
 

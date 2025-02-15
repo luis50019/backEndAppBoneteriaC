@@ -70,7 +70,6 @@ export class productsController {
   static editProduct = async(req,res)=>{
     try {
       const { id } = req.params;
-      console.log(req.body)
       const resultValidate = validateNewProducts(req.body);
 
       if(!resultValidate.success){
@@ -81,7 +80,9 @@ export class productsController {
       res.status(200).json(resultEdit);
       
     }catch (error) {
-      console.log("Error: ",error);
+      if(error instanceof ErrorProducts){
+        res.status(406).json(error.message)
+      }
       if(error instanceof Validation){
         res.status(406).json("Error de validacion");
       }
