@@ -6,6 +6,7 @@ import sizeclothings from '../../Schema/mongoDB/sizeClothing.schema.js';
 import SummaryInventory from '../../Schema/mongoDB/summaryInventory.schema.js';
 import genders from '../../Schema/mongoDB/gender.schema.js';
 import { ErrorProducts } from '../../Error/error.js';
+import { query } from 'express';
 
 export class ModelProducts{
   static createProduct = async (dataProduct)=>{
@@ -96,6 +97,37 @@ export class ModelProducts{
         throw new ErrorProducts("El nombre del producto ya existe","nameProducto already existe");
       }
     }
+  }
+
+  static findProducts = async(nameProduct)=>{
+    try{
+      const products = await Product.aggregate([
+        {
+          $search:{
+            index:"product",
+            text:{
+              query:"calcetin",
+              path:"productName",
+            }
+          }
+        },{
+          $project:{
+            _id:1,
+            productName:1,
+          }
+          
+        }
+      ]);
+      if(!products){
+        throw new ErrorProducts("producto no encontrado","producto not found")
+      }
+      return products;
+    }catch(error){
+      if(error instanceof ErrorProducts){
+        throw new ErrorProducts("producto no encontrado","producto not found")
+      }
+    }
+    
   }
 
   static deleteProduct = async (idProduct)=>{

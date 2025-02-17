@@ -13,3 +13,4 @@ routerProducts.get('/categories',productsController.getAllCategories);
 routerProducts.get('/genders',productsController.getGender);
 routerProducts.get('/size/:category',productsController.getAllSizeByCategory);
 routerProducts.get('/:id',productsController.getProductById);
+routerProducts.get('/search/:name',productsController.searchProduct);

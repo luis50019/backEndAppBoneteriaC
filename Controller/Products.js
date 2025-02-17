@@ -88,6 +88,17 @@ export class productsController {
       }
     }
   }
+  static searchProduct = async (req,res)=>{
+    try{
+      const {name} = req.params;
+      const products = await ModelProducts.findProducts(name);
+      res.status(201).json(products);
+    }catch(error){
+      if(error instanceof ErrorProducts){
+        res.status(204).json(error.message);
+      }
+    }
+  }
 
   static deleteProductByID = async(req,res)=>{
     try {
