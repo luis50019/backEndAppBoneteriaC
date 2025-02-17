@@ -114,7 +114,7 @@ export class ModelSales {
 
   static getTickets = async () => {
     try {
-      const tickets = await Ticket.find({},{_id:1,total:1,typeSale:1});
+      const tickets = await Ticket.find({},{_id:1,total:1,typeSale:1,saleDate:1});
       return tickets;
     } catch (error) {
       throw new ErrorSales("Error al obtener los tickets", "Error en ventas");
