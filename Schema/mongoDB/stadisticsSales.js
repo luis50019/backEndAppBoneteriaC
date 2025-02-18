@@ -8,3 +8,4 @@ const stadisticsSalesSchema = new mongoose.Schema({
 });
 
 export default mongoose.model('StadisticsSales', stadisticsSalesSchema);
+//76489

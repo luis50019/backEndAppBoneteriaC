@@ -22,12 +22,17 @@ export class ModelSales {
       }).session(session);
 
       if (!newTicket) {
+        const lastTicket = await Ticket.findOne({}).sort({ _id: -1 });
+        const nextTicket = lastTicket ? lastTicket.ticketNumber +1:1;
         newTicket = new Ticket({
           typeSale,
+          ticketNumber:nextTicket,
           total,
           details: [],
           saleData: date,
         });
+
+
       }
       const inventary = await summaryInventorySchema.findOne();
       if (!inventary) {
@@ -98,6 +103,8 @@ export class ModelSales {
           discount,
           subTotal: incomeTotal,
           totalProfit,
+          size: productFind.garment.size,
+          targetGender: productFind.garment.intendedGender,
           totalSoldAmount:soldAmount
         }
         newTicket.details.push(detailProductSale);
@@ -105,8 +112,8 @@ export class ModelSales {
       await newTicket.save({ session });
       await session.commitTransaction();
     } catch (error) {
-      session.abortTransaction();
       console.log(error);
+      session.abortTransaction();
     } finally {
       session.endSession();
     }
@@ -114,7 +121,7 @@ export class ModelSales {
 
   static getTickets = async () => {
     try {
-      const tickets = await Ticket.find({},{_id:1,total:1,typeSale:1,saleDate:1});
+      const tickets = await Ticket.find({},{_id:1,total:1,typeSale:1,saleDate:1,ticketNumber:1});
       return tickets;
     } catch (error) {
       throw new ErrorSales("Error al obtener los tickets", "Error en ventas");
@@ -123,7 +130,11 @@ export class ModelSales {
 
   static getTicketById = async (id) => {
     try {
-      const ticket = await Ticket.findById(id);
+      const ticket = await Ticket.findById(id)
+      .populate("details.product","productName _id")
+      .populate("details.size","size _id")
+      .populate("details.targetGender","gender _id");
+
       return ticket;
     } catch (error) {
       throw new ErrorSales("Error al obtener el ticket", "Error en ventas");

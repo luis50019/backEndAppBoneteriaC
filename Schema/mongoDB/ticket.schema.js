@@ -2,10 +2,13 @@ import mongoose from 'mongoose';
 
 const ticketSchema = new mongoose.Schema({
   saleDate: { type: Date, default: Date.now },
+  ticketNumber: {type:Number,required:true},
   typeSale: { type: String, enum: ['Oficial', 'No oficial'], required: true },
   total: { type: Number, required: true },
   details: [{
-    product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+    product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' }, // id del producto
+    size: {type:mongoose.Schema.Types.ObjectId, ref: 'sizeclothings' },
+    targetGender:{type:mongoose.Schema.Types.ObjectId, ref: 'genders' },
     pieceQuantity: { type: Number, default: 0 },
     quantityDozens: { type: Number, default: 0 },
     unitPrice: { type: Number, default: 0 },
