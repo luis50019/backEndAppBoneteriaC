@@ -106,14 +106,41 @@ export class ModelProducts{
           $search:{
             index:"product",
             text:{
-              query:"calcetin",
+              query:`*${nameProduct}*`,
               path:"productName",
+              fuzzy:{}
             }
+
           }
+        },{
+          $lookup:{
+            from:"sizeclothings",
+            localField:"garment.size",
+            foreignField:"_id",
+            as:"sizeclothings"
+          },
+          
+        },{
+          $lookup:{
+            from:"genders",
+            localField:"garment.intendedGender",
+            foreignField:"_id",
+            as:"intendedGender"
+          }
+        }
+        ,{
+          $unwind:"$sizeclothings",
+          $unwind:"$intendedGender",
         },{
           $project:{
             _id:1,
             productName:1,
+            size:"$sizeclothings.size",
+            gender:"$intendedGender.gender",
+            unitPrice:1,
+            dozenPrice:1,
+            availableUnits:1,
+            images:1
           }
           
         }
