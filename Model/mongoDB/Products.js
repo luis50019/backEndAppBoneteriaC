@@ -138,6 +138,7 @@ export class ModelProducts{
             size:"$sizeclothings.size",
             gender:"$intendedGender.gender",
             unitPrice:1,
+            discount:1,
             dozenPrice:1,
             availableUnits:1,
             images:1
