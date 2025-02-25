@@ -24,13 +24,13 @@ export class ControllerSales {
     } catch (error) {
       console.log(error);
       if( error instanceof Validation){
-        res.status(406).json(error.message);
+        res.status(406).json({error:"Error de valdacion"});
       }
       if(error instanceof ErrorTransaction){
-        res.status(409).send(error.message);
+        res.status(409).send({error:"error en el proceso de registro de ventas"});
       }
       if(error instanceof incorrectAmounts){
-        res.status(406).json(error.incorrects);
+        res.status(406).json({error:"valores incorrectos"});
       }
     }
   };

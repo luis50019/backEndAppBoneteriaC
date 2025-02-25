@@ -171,8 +171,6 @@ export class ModelProducts{
       }
     }
   }
-
-
   //methode for get all size and all category of the date base for return in the requeste of the front
 
   static getAllCategories = async()=>{
@@ -290,12 +288,3 @@ export class ModelProducts{
 
 }
 
-
-//const products = await Product.find()
-//     .populate('category','category -_id') 
-//      .populate('typeProduct','typeProduct -_id') 
-//      .populate('garment.typeClothing','typeclothing -_id') 
-//      .populate('garment.desiredAge','desiredAge minimumAge maximumAge -_id') 
-//      
-//      .populate('otherProduct.material','material -_id')
-//      .exec();
