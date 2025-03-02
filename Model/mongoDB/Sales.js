@@ -6,7 +6,8 @@ import MovementInventory from "../../Schema/mongoDB/movementInventory.schema.js"
 import StatisticsSales from "../../Schema/mongoDB/stadisticsSales.js";
 import Ticket from "../../Schema/mongoDB/ticket.schema.js";
 import summaryInventorySchema from "../../Schema/mongoDB/summaryInventory.schema.js";
-import SizeClothing from "../../Schema/mongoDB/sizeClothing.schema.js";
+import movementInventorySchema from "../../Schema/mongoDB/movementInventory.schema.js";
+
 export class ModelSales {
   static newSale = async (saleData) => {
     let session;
@@ -107,6 +108,17 @@ export class ModelSales {
           targetGender: productFind.garment.intendedGender,
           totalSoldAmount:soldAmount
         }
+
+        //register this movement in the schema movementInventory
+        console.log("producto vendidos: ",productFind._id)
+        const movement = new movementInventorySchema({
+          product: productFind._id,
+          movementType: "salida",
+          quantity: soldAmount,
+          dateSale: date,
+        })
+        await movement.save({session});
+
         newTicket.details.push(detailProductSale);
       }
       await newTicket.save({ session });

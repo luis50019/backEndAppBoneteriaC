@@ -5,6 +5,7 @@ import {validateSaleHeader, validateProductsSale} from '../Schema/sales.js'
 export class ControllerSales {
   static newSale = async (req, res) => {
     try {
+      console.log(req.body);
       const { typeSale, total, products } = req.body;
       const saleHeader = {"typeSale":typeSale,"total":total};
 
@@ -12,7 +13,7 @@ export class ControllerSales {
       const resulProductsSale = validateProductsSale(products);
       
       if(!resulValidateSaleHeader.success){
-        throw new Validation("Error validate sale header",resulValidateSaleHeader.error.errors);
+        throw new Validation("Error validate sale header",resulValidateSaleHeader.error.errors[0].path);
       }
       if(!resulProductsSale.success){
         throw new Validation("Error validate product sale",resulProductsSale.error.errors)

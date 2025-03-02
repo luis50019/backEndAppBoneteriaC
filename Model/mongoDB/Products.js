@@ -1,5 +1,5 @@
 import mongoose, { ObjectId } from 'mongoose';
-
+import movementInventorySchema from '../../Schema/mongoDB/movementInventory.schema.js';
 import Product from '../../Schema/mongoDB/product.schema.js';
 import categories from '../../Schema/mongoDB/category.schema.js';
 import sizeclothings from '../../Schema/mongoDB/sizeClothing.schema.js';
@@ -25,12 +25,16 @@ export class ModelProducts{
       if (!category) {
         throw new ErrorProducts("La categoria no existe","foundCategory");
       }
+      console.log(category)
           
-      let size = await sizeclothings.findOne({_id:dataProduct.size,type_product:dataProduct.category});
-      
-      if (!size) {
-        throw new ErrorProducts("No se encontro la talla de ropa","foundSize");
+      if(dataProduct.size){
+        let size = await sizeclothings.findOne({_id:dataProduct.size,type_product:dataProduct.category});
+        if (!size) {
+          throw new ErrorProducts("No se encontro la talla de ropa","foundSize");
+        } 
       }
+      let gender = dataProduct.targetGender ? dataProduct.targetGender : "67c36138e8e9fe0e00b32917";
+      let sizeData = dataProduct.size ? dataProduct.size : "67c36178e8e9fe0e00b32919";
 
       const product = new Product({
         isSecondHand: dataProduct.isSecondHand,
@@ -44,8 +48,8 @@ export class ModelProducts{
         soldUnits: 0,
         images: [...dataProduct.ImageUrl],
         garment: {
-          intendedGender: dataProduct.targetGender,
-          size: size._id,
+          intendedGender: gender,
+          size: sizeData,
         }
       });
       const newProduct = await product.save({session});
@@ -71,6 +75,16 @@ export class ModelProducts{
         inventary.lastFecha = Date.now();
         await inventary.save({session});
       }
+
+      // register the movement of the inventary
+      const movement = new movementInventorySchema({
+        product: newProduct._id,
+        movementType: "entrada",
+        quantity: dataProduct.availableUnits,
+        dateSale: Date.now()
+      });
+      await movement.save({session});
+
       await session.commitTransaction();
       return newProduct;
 
@@ -90,7 +104,18 @@ export class ModelProducts{
       if(existProduct._id != idProduct){
         throw new ErrorProducts("El nombre del producto ya existe","nameproduct alredy exist")
       }
-      const productUpdate = await Product.findByIdAndUpdate(idProduct, newInfoProduct, { new: true, upsert: true });
+      const productUpdate = await Product.findByIdAndUpdate(idProduct, { $set: { ...newInfoProduct, images: [...newInfoProduct.ImageUrl] } }, { new: true, upsert: true });
+      //register the new value of the inventary
+      if(existProduct.availableUnits != newInfoProduct.availableUnits){
+        const movement = new movementInventorySchema({
+          product: productUpdate._id,
+          movementType: "entrada",
+          quantity: newInfoProduct.availableUnits - existProduct.availableUnits, // value of input in the inventary
+          dateSale: Date.now()
+        })
+        await movement.save();
+      }
+      
       return productUpdate;
     } catch (error) {
       if(error instanceof ErrorProducts){
@@ -164,6 +189,17 @@ export class ModelProducts{
       if(!product){
         throw new ErrorProducts("No se encontro el producto","notFoundProduct");
       }
+
+      //register this movement in the colecction of movementInventary
+
+      const movement = new movementInventorySchema({
+        product: idProduct,
+        movementType: "eliminado",
+        quantity: product.availableUnits,
+        dateSale: Date.now()
+      });
+      await movement.save();
+
       return product;
     } catch (error) {
       if(error instanceof ErrorProducts){

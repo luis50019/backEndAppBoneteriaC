@@ -1,7 +1,7 @@
 import z from "zod";
 
 const schemaTypeSales = z.object({
-  "typeSale": z.string().min(7),
+  "typeSale": z.string().min(6),
   "total":z.number().positive()
 })
 
