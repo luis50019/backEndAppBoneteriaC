@@ -2,7 +2,7 @@ import cors from 'cors';
 
 const ACCEPTED_ORIGINS = [
   "https://inventario-boneteria.onrender.com",
-  "https://inventario-boneteria.vercel.app/",
+  "https://inventario-boneteria.vercel.app",
   "https://192.168.1.75:5173",
   "http://192.168.1.75:5173",
   "https://localhost:5173",
