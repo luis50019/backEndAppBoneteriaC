@@ -256,7 +256,7 @@ export class ModelProducts{
         profitsGenerated:1,
         availableUnits:1,
         sizeclothings:1,
-      }).sort({soldUnits:-1}).limit(2).populate('garment.size','size -_id')
+      }).sort({soldUnits:-1}).limit(3).populate('garment.size','size -_id')
       .exec();
 
       return topProducts;
@@ -274,7 +274,7 @@ export class ModelProducts{
         incomeGenerated:1,
         profitsGenerated:1,
         availableUnits:1
-      }).populate('sizeclothings','size -_id')
+      }).sort({availableUnits:1}).populate('garment.size','size -_id')
       .exec();
 
       return products

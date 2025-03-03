@@ -135,6 +135,7 @@ export class productsController {
       if (error instanceof ErrorProducts) {
         res.status(406).json({ message: error.message });
       } else {
+        console.log(error)
         res.status(500).json({ message: "Error interno del servidor" });
       }
     }
