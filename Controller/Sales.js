@@ -5,7 +5,6 @@ import {validateSaleHeader, validateProductsSale} from '../Schema/sales.js'
 export class ControllerSales {
   static newSale = async (req, res) => {
     try {
-      console.log(req.body);
       const { typeSale, total, products } = req.body;
       const saleHeader = {"typeSale":typeSale,"total":total};
 
@@ -42,7 +41,7 @@ export class ControllerSales {
       res.status(200).json(tickets);
     } catch (error) {
       console.log(error);
-      res.status(404).json({message:"error"});
+      res.status(404).json({message:"error fd"});
     }
   }
 
@@ -51,8 +50,7 @@ export class ControllerSales {
       const ticket = await ModelSales.getTicketById(req.params.id);
       res.status(200).json(ticket);
     } catch (error) {
-      console.log(error);
-      res.status(404).json({message:"error"});
+      res.status(404).json({message:"error cd"});
     }
   }
 
@@ -62,7 +60,24 @@ export class ControllerSales {
       res.status(200).json(salesInfo);
     } catch (error) {
       console.log(error);
-      res.status(404).json({message:"error"});
+      res.status(404).json({message:"error al buscar informacion"});
+    }
+  }
+
+  static searchSales = async(req,res)=>{
+    try {
+      const { ticketNumber, saleDate } = req.query;
+      let tickets = [];
+      if (ticketNumber) {
+        tickets = await ModelSales.searchTicketsByNumber(ticketNumber);
+      }
+      if (saleDate) {
+        tickets = await ModelSales.searchTicketsBySaleDate(saleDate);    
+      }
+      res.status(200).json(tickets);
+    } catch (error) {
+      console.log(error);
+      res.status(500)
     }
   }
 

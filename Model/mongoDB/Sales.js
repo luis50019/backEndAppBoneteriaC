@@ -24,10 +24,10 @@ export class ModelSales {
 
       if (!newTicket) {
         const lastTicket = await Ticket.findOne({}).sort({ _id: -1 });
-        const nextTicket = lastTicket ? lastTicket.ticketNumber +1:1;
+        const nextTicket = lastTicket ? parseInt(lastTicket.ticketNumber) +1:1;
         newTicket = new Ticket({
           typeSale,
-          ticketNumber:nextTicket,
+          ticketNumber:""+nextTicket,
           total,
           details: [],
           saleData: date,
@@ -161,4 +161,79 @@ export class ModelSales {
       throw new ErrorSales("Error al obtener la informacion de ventas", "Error en ventas");
     }
   };
+
+  static searchTicketsByNumber = async (filter) => {
+    try{
+      const tickets = await Ticket.aggregate([
+        {
+          $search: {
+            index: "ticketSearch",
+            text: {
+              query:`${filter}`,
+              path: "ticketNumber",
+            }
+          }
+        },
+        {
+          $project:{
+            _id:1,
+            saleDate:1,
+            total:1,
+            typeSale:1,
+            ticketNumber:1,
+          }
+        }
+      ])
+      return tickets;
+    }catch(error){
+      return error;
+    }
+  }
+  static searchTicketsBySaleDate = async (date) => {
+    try{
+      const startDate = new Date(date);
+      startDate.setUTCHours(0, 0, 0, 0);
+    
+      const endDate = new Date(date);
+      endDate.setUTCHours(23, 59, 59, 999);
+      const tickets = await Ticket.aggregate([
+        {
+          $search: {
+            index: 'searchCompues', // Asegúrate de que el índice existe en Atlas
+            range: {
+              path: 'saleDate',
+              gte: startDate,
+              lte: endDate
+            }
+          }
+        },
+        {
+          $project:{
+            _id:1,
+            saleDate:1,
+            total:1,
+            typeSale:1,
+            ticketNumber:1,
+          }
+        }
+      ])
+      return tickets;
+    }catch(error){
+      return error;
+    }
+  }
 }
+
+/*[
+  {
+    "$search": {
+      "index": "searchCompues",
+      "range": {
+        "path": "saleDate",
+        "gte": ISODate("2025-03-06T22:43:10.000Z"),
+        "lte": ISODate("2025-03-06T22:44:10.000Z")
+      }
+    }
+  }
+]
+*/
