@@ -1,187 +1,61 @@
-//validar que  en la base de datos no se agreguen valores repetidos
-// eliminar el documento de tipo de producto
-//eliminar el desiredage
-//modificar lo siguiente:
-  pasar el valor de talla_description en el documento de size
-  y colocarlo en el documento de desiredAge
-  y en el documento size
-  solo debe de aparecer:
-    talla
-    al tipo de prenda al que te pertenece
-    al desiredAge al que pertenece
-    
+# Bonetería - Backend del Sistema de Control de Inventario
 
+## Descripción
 
-//ventas
-{
-  "id":"dc0de2cf-8b38-11ef-bd88-809133f30242",
-  "field":"unidad",
-  "value":15
-}
+Este proyecto es el backend de un sistema de gestión de inventario desarrollado para una bonetería. Su objetivo principal es permitir la administración eficiente de los productos, facilitando el control de stock, la gestión de ventas y el registro de movimientos en el inventario.
 
-{
- "typeSale":"Oficial",
- "total":11809,
- "date":"2024-10-03",
- "products":[
-    {
-      "pieceQuantity":2,
-      "quantityDozens":0,
-      "productId":"676a89ee77920b315ab17756"
-    },
-    {
-      "pieceQuantity":2,
-      "quantityDozens":2,
-      "productId":"676a89fb77920b315ab17762"
-    },
-    {
-      "pieceQuantity":10,
-      "quantityDozens":0,
-      "productId":"676a8a0577920b315ab1776e"
-    }
-   ]
-}
-//productos
+El sistema aún está en desarrollo y forma parte de una práctica personal para mejorar habilidades en el desarrollo backend, el manejo de bases de datos NoSQL y la integración de APIs.
 
-{
-  "productType": "Ropa interior",
-  "category": "otros",
-  "isSecondHand":false,
-  "productName": "llaveros",
-  "imageUrl": ["https://example.com/llavero.jpg","https://example.com/llavero-2.jpg"],
-  "purchasePrice": 150.5,
-  "unitPrice": 200.0,
-  "dozenPrice": 2200.0,
-  "discount": 10.0,
-  "availableUnits": 100,
-  "soldUnits": 25,
-  "totalInventoryCost": 15050.0,
-  "material": "plastico",
-  "descriptionProduct": "Es un producto"
-}
-2800
+## Tecnologías Utilizadas
 
-//objetos de prueba: 
-//primer objeto
-{
-  "isSecondHand": false,
-  --"category": "ropa",
-  "productName": "Falda corta de verano",
-  "imageUrl": ["https://example.com/falda-larga.jpg","https://example.com/falda-larga-2.jpg"],
-  "purchasePrice": 100.0,
-  "unitPrice": 300.0,
-  "dozenPrice": 3000.0,
-  "discount": 1.0,
-  --"availableUnits": 30,
-  "targetGender": "femenino",
-  "clothingType": "falda",
-  "targetAge": "adulto joven",
-  "size": "S",
-  "minimumAge": 15,
-  "maximumAge": 20
-}
+- **Backend:** Node.js con Express
+- **Base de datos:** MongoDB con Mongoose
+- **Manejo de cookies:** Cookie-Parser
+- **Seguridad:** CORS para protección de la API
 
-{
-  "productType": "sudadera",
-  "isSecondHand": false,
-  "category": "ropa",
-  "productName": "Sudadera con capucha",
-  "imageUrl": ["https://example.com/sudadera-capucha.jpg","https://example.com/sudadera-capucha-2.jpg"],
-  "purchasePrice": 200.0,
-  "unitPrice": 400.0,
-  "dozenPrice": 4800.0,
-  "discount": 15.0,
-  "availableUnits": 75,
-  "soldUnits": 20,
-  "totalInventoryCost": 15000.0,
-  "targetGender": "unisex",
-  "clothingType": "sudadera",
-  "targetAge": "adulto",
-  "size": "L",
-  "minimumAge": 20,
-  "maximumAge": 25
-}
-//segundo objeto
-{
-  "productType": "falda",
-  "isSecondHand": false,
-  "category": "ropa",
-  "productName": "Falda larga de verano",
-  "imageUrl": ["https://example.com/falda-larga.jpg","https://example.com/falda-larga-2.jpg"],
-  "purchasePrice": 100.0,
-  "unitPrice": 250.0,
-  "dozenPrice": 2700.0,
-  "discount": 5.0,
-  "availableUnits": 40,
-  "soldUnits": 10,
-  "totalInventoryCost": 4000.0,
-  "targetGender": "femenino",
-  "clothingType": "falda",
-  "targetAge": "adulto joven",
-  "size": "S",
-  "minimumAge": 15,
-  "maximumAge": 20
-}
-//tercer objeto
-{
-  "productType": "camisa",
-  "esSegundaMano": true,
-  "category": "ropa",
-  "productName": "Camisa de mezclilla",
-  "imageUrl": "https://example.com/camisa-mezclilla.jpg",
-  "purchasePrice": 80.0,
-  "unitPrice": 150.0,
-  "dozenPrice": null,
-  "discount": null,
-  "availableUnits": 60,
-  "soldUnits": null,
-  "totalInventoryCost": null,
-  "targetGender": "masculino",
-  "clothingType": "camisa",
-  "targetAge": "",
-  "size": "",
-  "minimumAge": null,
-  "maximumAge": null
-}
-//cuarto objeto
-{
-    "productType":"pantalones cortos",
-    "esSegundaMano":false,
-    "category":"ropa",
-    "productName":"Pantalones cortos de algodón",
-    "imageUrl":"https://example.com/pantalones-cortos.jpg",
-    "purchasePrice":120.0,
-    "unitPrice":220.0,
-    "dozenPrice":2400.0,
-    "discount":8.0,
-    "availableUnits":30,
-    "soldUnits":15,
-    "totalInventoryCost":3600.0,
-    "targetGender":"femenino",
-    "clothingType":"pantalones cortos",
-    "targetAge":"joven adulto",
-    "size":"M",
-    "minimumAge":16,
-    "maximumAge":30
-}
-//quinto objeto
+## Características del Proyecto
 
-{
-   "productType":"chaqueta de cuero",
-   "esSegundaMano":true,
-   "category":"ropa",
-   "productName":"Chaqueta de cuero vintage",
-   "imageUrl":"https://example.com/chaqueta-cuero.jpg",
-   "purchasePrice":300.0,
-   "unitPrice":600.0,
-   "dozenPrice":null,
-   "discount":20.0,
-   "availableUnits":20,
-   "soldUnits":5,
-   "totalInventoryCost":6000.0,
-   "targetGender":"masculino",
-   "clothingType":"chaqueta",
-   "targetAge":"adulto maduro",
-   "size":"L",
-   "minimumAge":"","maximumAge":""
-}
+- Registro y autenticación de usuarios con JWT.
+- Gestión de productos (altas, bajas y modificaciones).
+- Control de inventario con registros de stock y ventas.
+- Creación de endpoints para operaciones CRUD sobre productos y usuarios.
+- Implementación de medidas de seguridad para la protección de datos.
+
+## Estado del Proyecto
+
+Este proyecto se encuentra en desarrollo y aún está en fase de pruebas. Actualmente, se está trabajando en:
+
+- Refinamiento de los modelos en MongoDB.
+- Implementación de pruebas unitarias con Jest.
+- Optimización de las consultas a la base de datos.
+
+## Objetivo del Proyecto
+
+Este proyecto fue creado con la finalidad de practicar y mejorar habilidades en:
+
+- Desarrollo de APIs RESTful con Express y Node.js.
+- Manejo de bases de datos NoSQL con MongoDB.
+- Creación de sistemas de inventario escalables y eficientes.
+
+## Instalación y Configuración
+
+1. Instalar dependencias:
+   ```bash
+   npm install
+   ```
+2. Iniciar el servidor:
+   ```bash
+   npm run dev
+   ```
+
+## Futuras Mejoras
+
+- Implementación de un panel de administración con React.js.
+- Notificaciones automáticas cuando un producto esté por agotarse.
+- Soporte para múltiples usuarios con diferentes roles y permisos.
+- Integración con facturación y pagos en línea.
+
+## Contribuciones
+
+Dado que este es un proyecto de práctica personal, las contribuciones externas no están habilitadas por el momento. Sin embargo, cualquier sugerencia o comentario es bienvenido.
+
